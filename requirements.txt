@@ -3,6 +3,12 @@ fastapi==0.104.1
 uvicorn[standard]==0.24.0
 python-multipart==0.0.6
 
+# Part 1: Gateway, Queuing & Metadata
+exifread>=3.0.0
+c2pa-python>=0.26.0  # Content Credentials (C2PA)
+celery>=5.3.0
+redis>=5.0.0
+
 # Part 2: Image Forensics
 torch>=2.2.0
 torchvision>=0.17.0

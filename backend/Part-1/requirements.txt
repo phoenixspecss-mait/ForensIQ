@@ -1,0 +1,7 @@
+fastapi
+uvicorn[standard]
+python-multipart
+celery
+redis
+exifread
+c2pa-python
