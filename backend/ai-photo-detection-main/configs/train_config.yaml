@@ -1,0 +1,48 @@
+# Training & Resource Configuration (Optimized for Mac MPS / CPU)
+
+# Device & Hardware Settings
+hardware:
+  preferred_device: "mps" # options: mps, cuda, cpu
+  fallback_device: "cpu"
+  mixed_precision: true # torch.amp on MPS / CUDA
+  num_workers: 2
+  pin_memory: false
+
+# Training Hyperparameters
+training:
+  batch_size: 16
+  gradient_accumulation_steps: 2
+  effective_batch_size: 32
+  num_epochs: 20
+  learning_rate: 1.0e-4
+  min_learning_rate: 1.0e-6
+  weight_decay: 1.0e-4
+  warmup_epochs: 2
+  scheduler: "cosine_annealing"
+  early_stopping_patience: 5
+
+# Optimizer
+optimizer:
+  type: "AdamW"
+  betas: [0.9, 0.999]
+  eps: 1.0e-8
+
+# Online Training Augmentation (Controlled & Non-Destructive to Raw Archives)
+online_augmentation:
+  enabled: true
+  random_horizontal_flip_prob: 0.5
+  random_jpeg_compression:
+    enabled: true
+    prob: 0.5
+    quality_range: [65, 95]
+  random_gaussian_blur:
+    enabled: true
+    prob: 0.2
+    sigma_range: [0.5, 1.5]
+
+# Logging & Checkpointing
+logging:
+  log_interval_batches: 20
+  save_best_checkpoint: true
+  checkpoint_dir: "experiments/checkpoints"
+  metrics_dir: "experiments/logs"

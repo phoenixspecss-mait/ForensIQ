@@ -1,0 +1,27 @@
+# Core Deep Learning & Vision Backbones
+torch>=2.2.0
+torchvision>=0.17.0
+timm>=0.9.16
+
+# Numerical & Signal Processing Forensics
+numpy>=1.24.0
+scipy>=1.11.0
+scikit-image>=0.22.0
+scikit-learn>=1.4.0
+opencv-python>=4.9.0
+imagehash>=4.3.1
+
+# Data Management & Preprocessing
+pandas>=2.1.0
+pyarrow>=14.0.0
+pyyaml>=6.0.1
+requests>=2.31.0
+tqdm>=4.66.0
+albumentations>=1.4.0
+
+# Visualization & Interactive Application
+matplotlib>=3.8.0
+streamlit>=1.32.0
+
+# Testing & Quality Assurance
+pytest>=8.0.0

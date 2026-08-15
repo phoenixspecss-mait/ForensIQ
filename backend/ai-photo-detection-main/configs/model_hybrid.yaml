@@ -1,0 +1,41 @@
+# Hybrid Dual-Branch Multitask Architecture Configuration
+
+# 2D Spatial Forensic Stem (Processes 4-ch SRM+ELA tensor)
+spatial_stem:
+  in_channels: 4
+  stem_channels: [32, 64]
+  kernel_size: 3
+  stride: 2
+  out_dim: 128
+
+# 1D Statistical Forensic MLP (Processes 128-d vector)
+statistical_mlp:
+  in_dim: 128
+  hidden_dims: [256, 256]
+  out_dim: 128
+  dropout: 0.2
+  activation: "GELU"
+
+# Gated Cross-Attention Fusion Engine
+fusion:
+  shared_dim: 256
+  fusion_type: "gated_cross_attention" # options: gated_cross_attention, concat, early_fusion
+  dropout: 0.3
+  fused_dim: 512
+
+# Dual-Task Output Heads
+heads:
+  classification:
+    in_features: 512
+    hidden_dim: 128
+    num_classes: 3 # Real (0), AI-Generated (1), Manipulated (2)
+    temperature_scaling: true
+    label_smoothing: 0.05
+
+  segmentation_decoder:
+    type: "fpn_unet"
+    in_channels: [96, 192, 384, 768] # Multi-scale skip channels
+    decoder_channels: [256, 128, 64, 32]
+    out_channels: 1 # Binary tamper mask
+    final_activation: "sigmoid"
+    loss_weight_lambda: 0.5
