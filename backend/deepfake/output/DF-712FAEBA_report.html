@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Deepfake Forensic Audit Report - DF-712FAEBA</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f8fafc; color: #0f172a; margin: 0; padding: 24px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .card { background: #ffffff; border-radius: 8px; padding: 24px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .verdict-badge { display: inline-block; padding: 8px 16px; font-weight: bold; border-radius: 6px; color: #ffffff; background: #f59e0b; font-size: 1.25rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        th, td { padding: 10px; border-bottom: 1px solid #e2e8f0; text-align: left; }
+        th { background: #f1f5f9; }
+        .badge { padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; }
+        code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Deepfake Forensic Audit Report</h1>
+            <p style="color: #64748b;">Report ID: <code>DF-712FAEBA</code> | Generated: 2026-08-15 16:24:37 UTC</p>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 16px;">
+                <div>
+                    <span class="verdict-badge">UNCERTAIN</span>
+                    <p style="margin-top: 8px;"><strong>Score:</strong> 0.3525 | <strong>Confidence:</strong> 74.1%</p>
+                </div>
+            </div>
+            <div style="margin-top: 16px; padding: 12px; background: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 4px;">
+                <strong>Recommendation:</strong> MODERATE RISK: Ambiguous anomaly indicators. Secondary manual review recommended.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Multi-Modal Score Breakdown</h2>
+            <table>
+                <thead>
+                    <tr><th>Modality</th><th>Score</th><th>Confidence</th><th>Weight</th><th>Detected Anomalies</th></tr>
+                </thead>
+                <tbody>
+            <tr>
+                <td><strong>SPATIAL</strong></td>
+                <td>
+                    <div style="background: #e2e8f0; border-radius: 4px; overflow: hidden; width: 100px; height: 16px; display: inline-block; vertical-align: middle;">
+                        <div style="background: #f59e0b; width: 15%; height: 100%;"></div>
+                    </div>
+                    <span style="margin-left: 8px; font-weight: bold;">0.150</span>
+                </td>
+                <td>88%</td>
+                <td>0.35</td>
+                <td>None</td>
+            </tr>
+            
+            <tr>
+                <td><strong>FREQUENCY</strong></td>
+                <td>
+                    <div style="background: #e2e8f0; border-radius: 4px; overflow: hidden; width: 100px; height: 16px; display: inline-block; vertical-align: middle;">
+                        <div style="background: #f59e0b; width: 90%; height: 100%;"></div>
+                    </div>
+                    <span style="margin-left: 8px; font-weight: bold;">0.900</span>
+                </td>
+                <td>85%</td>
+                <td>0.25</td>
+                <td>Periodic high-frequency spectral grid artifacts detected</td>
+            </tr>
+            
+            <tr>
+                <td><strong>TEMPORAL</strong></td>
+                <td>
+                    <div style="background: #e2e8f0; border-radius: 4px; overflow: hidden; width: 100px; height: 16px; display: inline-block; vertical-align: middle;">
+                        <div style="background: #f59e0b; width: 20%; height: 100%;"></div>
+                    </div>
+                    <span style="margin-left: 8px; font-weight: bold;">0.200</span>
+                </td>
+                <td>50%</td>
+                <td>0.05</td>
+                <td>None</td>
+            </tr>
+            
+            <tr>
+                <td><strong>AUDIO</strong></td>
+                <td>
+                    <div style="background: #e2e8f0; border-radius: 4px; overflow: hidden; width: 100px; height: 16px; display: inline-block; vertical-align: middle;">
+                        <div style="background: #f59e0b; width: 15%; height: 100%;"></div>
+                    </div>
+                    <span style="margin-left: 8px; font-weight: bold;">0.150</span>
+                </td>
+                <td>50%</td>
+                <td>0.05</td>
+                <td>None</td>
+            </tr>
+            
+            <tr>
+                <td><strong>METADATA</strong></td>
+                <td>
+                    <div style="background: #e2e8f0; border-radius: 4px; overflow: hidden; width: 100px; height: 16px; display: inline-block; vertical-align: middle;">
+                        <div style="background: #f59e0b; width: 25%; height: 100%;"></div>
+                    </div>
+                    <span style="margin-left: 8px; font-weight: bold;">0.250</span>
+                </td>
+                <td>90%</td>
+                <td>0.05</td>
+                <td>None</td>
+            </tr>
+            </tbody>
+            </table>
+            <h3>Audit Rationale</h3>
+            <ul><li>FINAL VERDICT: UNCERTAIN. Aggregated score 0.353 falls in ambiguity window (0.35 - 0.60).</li><li>Low anomaly in [SPATIAL] modality (score: 0.15): consistent with authentic media.</li><li>High anomaly detected in [FREQUENCY] modality (score: 0.90, weight: 0.25): FFT 2D spectral decomposition identified high-frequency magnitude level of 165.44.</li><li>Low anomaly in [TEMPORAL] modality (score: 0.20): consistent with authentic media.</li><li>Low anomaly in [AUDIO] modality (score: 0.15): consistent with authentic media.</li><li>Low anomaly in [METADATA] modality (score: 0.25): consistent with authentic media.</li></ul>
+        </div>
+
+        
+            <div class="card">
+                <h2>Visual Explainability (Grad-CAM)</h2>
+                <p><strong>Target Layer:</strong> <code>conv_final</code></p>
+                <p>Grad-CAM visual analysis detected 1 localized anomaly regions with peak intensity 1.00.</p>
+                <table>
+                    <thead>
+                        <tr><th>Bounding Box (x,y,w,h)</th><th>Peak Activation</th><th>Intensity</th><th>Label</th></tr>
+                    </thead>
+                    <tbody>
+                <tr>
+                    <td><code>(115, 115, 283, 283)</code></td>
+                    <td>1.000</td>
+                    <td><span class="badge" style="background: #fee2e2; color: #991b1b;">Critical</span></td>
+                    <td>Critical facial blending boundary mismatch at (115, 115)</td>
+                </tr>
+                </tbody>
+                </table>
+            </div>
+            
+
+        <div class="card">
+            <h2>Media Metadata</h2>
+            <p><strong>Source File:</strong> <code>output/synthetic_face.png</code></p>
+            <p><strong>File Type:</strong> png</p>
+            <p><strong>Resolution:</strong> (1080, 1080)</p>
+            <p><strong>SHA-256 Checksum:</strong> <code>3a59ed430f61a74f49b3e8200f27651a5581a53667263925022da98cf7cda617</code></p>
+        </div>
+    </div>
+</body>
+</html>

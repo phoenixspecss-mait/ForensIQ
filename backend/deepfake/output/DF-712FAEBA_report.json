@@ -1,0 +1,103 @@
+{
+  "report_id": "DF-712FAEBA",
+  "timestamp": "2026-08-15 16:24:37 UTC",
+  "metadata": {
+    "file_path": "output/synthetic_face.png",
+    "file_type": "png",
+    "duration_sec": null,
+    "resolution": [
+      1080,
+      1080
+    ],
+    "frame_count": null,
+    "fps": null,
+    "camera_info": {
+      "software": "Standard Acquisition Pipeline"
+    },
+    "file_hash": "3a59ed430f61a74f49b3e8200f27651a5581a53667263925022da98cf7cda617"
+  },
+  "modality_scores": [
+    {
+      "modality": "spatial",
+      "score": 0.15,
+      "confidence": 0.88,
+      "weight": 0.35,
+      "anomalies_detected": [],
+      "rationale": "Spatial domain inspection yielded Laplacian variance of 2177.41. Anomaly score: 0.15."
+    },
+    {
+      "modality": "frequency",
+      "score": 0.9,
+      "confidence": 0.85,
+      "weight": 0.25,
+      "anomalies_detected": [
+        "Periodic high-frequency spectral grid artifacts detected"
+      ],
+      "rationale": "FFT 2D spectral decomposition identified high-frequency magnitude level of 165.44."
+    },
+    {
+      "modality": "temporal",
+      "score": 0.2,
+      "confidence": 0.5,
+      "weight": 0.05,
+      "anomalies_detected": [],
+      "rationale": "Single static image provided; temporal analysis bypassed."
+    },
+    {
+      "modality": "audio",
+      "score": 0.15,
+      "confidence": 0.5,
+      "weight": 0.05,
+      "anomalies_detected": [],
+      "rationale": "No audio track embedded in target media artifact."
+    },
+    {
+      "modality": "metadata",
+      "score": 0.25,
+      "confidence": 0.9,
+      "weight": 0.05,
+      "anomalies_detected": [],
+      "rationale": "EXIF and media container structure verified consistent with standard capture."
+    }
+  ],
+  "gradcam_result": {
+    "heatmap_path": "output/DF-712FAEBA_gradcam_heatmap.png",
+    "overlay_path": "output/DF-712FAEBA_gradcam_overlay.png",
+    "target_layer": "conv_final",
+    "regions": [
+      {
+        "bbox": [
+          115,
+          115,
+          283,
+          283
+        ],
+        "peak_activation": 1.0,
+        "heat_intensity": "Critical",
+        "anomaly_label": "Critical facial blending boundary mismatch at (115, 115)"
+      }
+    ],
+    "summary": "Grad-CAM visual analysis detected 1 localized anomaly regions with peak intensity 1.00."
+  },
+  "fusion_result": {
+    "overall_score": 0.3525,
+    "verdict": "UNCERTAIN",
+    "confidence_level": 0.7405,
+    "weighted_breakdown": {
+      "spatial": 0.0525,
+      "frequency": 0.225,
+      "temporal": 0.04,
+      "audio": 0.0225,
+      "metadata": 0.0125
+    },
+    "explanations": [
+      "FINAL VERDICT: UNCERTAIN. Aggregated score 0.353 falls in ambiguity window (0.35 - 0.60).",
+      "Low anomaly in [SPATIAL] modality (score: 0.15): consistent with authentic media.",
+      "High anomaly detected in [FREQUENCY] modality (score: 0.90, weight: 0.25): FFT 2D spectral decomposition identified high-frequency magnitude level of 165.44.",
+      "Low anomaly in [TEMPORAL] modality (score: 0.20): consistent with authentic media.",
+      "Low anomaly in [AUDIO] modality (score: 0.15): consistent with authentic media.",
+      "Low anomaly in [METADATA] modality (score: 0.25): consistent with authentic media."
+    ]
+  },
+  "recommendation": "MODERATE RISK: Ambiguous anomaly indicators. Secondary manual review recommended."
+}
