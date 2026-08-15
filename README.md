@@ -1,184 +1,289 @@
-# 🕵️ Deepfake & Digital Media Authenticity Verification
+# ForensIQ - Multimodal Forensics Analysis Platform
 
-An AI-powered forensic platform that detects manipulated and AI-generated multimedia — images, video, and audio — by combining deep learning classifiers with classical digital forensics. The system outputs a confidence score and a visual, explainable audit report so users can verify whether content is real or synthetic before (or after) it's shared online.
-
-> **Built for:** Brainwave 2026 — Problem Statement Set 1: *Deepfake & Digital Media Authenticity Verification*
-
----
-
-## 📌 Problem Statement
-
-The rapid advancement of generative AI has made it increasingly difficult to distinguish authentic digital media from manipulated content. Deepfake videos, AI-generated voices, and synthetic images pose significant risks to journalism, public safety, elections, businesses, and digital trust.
-
-This project develops a solution capable of detecting manipulated or AI-generated multimedia by leveraging AI/ML models, digital forensics, metadata analysis, and content verification techniques — verifying images and videos, producing a confidence score, and helping users check authenticity before or after sharing content online.
-
----
-
-## 🧩 System Architecture
-
-The pipeline is organized into four modules, each targeting a different forensic signal, fused together into a single verdict:
-
-```
-                ┌─────────────────────────┐
-                │   Input Media (Image /   │
-                │   Video / Audio)         │
-                └────────────┬─────────────┘
-                              │
-        ┌─────────────────────┼─────────────────────┐
-        ▼                     ▼                     ▼
-┌───────────────┐   ┌───────────────────┐   ┌───────────────────┐
-│ Part 2:        │   │ Part 3:            │   │ Metadata &         │
-│ Image AI &      │   │ Video Biometrics &  │   │ Container-level     │
-│ Pixel Forensics │   │ Audio AI            │   │ Analysis            │
-└───────┬────────┘   └─────────┬──────────┘   └─────────┬──────────┘
-        │                       │                          │
-        └───────────────────────┼──────────────────────────┘
-                                 ▼
-                    ┌─────────────────────────┐
-                    │ Part 4: Ensemble,         │
-                    │ Grad-CAM & Reports        │
-                    └────────────┬──────────────┘
-                                 ▼
-                    ┌─────────────────────────┐
-                    │ Confidence Score +        │
-                    │ Explainable Heatmaps +    │
-                    │ PDF Audit Report          │
-                    └─────────────────────────┘
-```
-
----
-
-## 🔍 Module Breakdown
-
-### Part 2 — Image AI & Pixel Forensics
-
-Detects synthetic media generation (GANs, Diffusion) and localized image tampering (splicing, inpainting, copy-move).
-
-| Technique | Purpose |
-|---|---|
-| **Error Level Analysis (ELA)** | Identifies compression-level variations by re-saving the image at a fixed JPEG quality and computing the absolute pixel difference against the original |
-| **Frequency Domain Analysis (2D-FFT / DCT)** | Exposes periodic grid artifacts and high-frequency discrepancies left behind by generative upsampling / transposed convolutions |
-| **Noise Inconsistency & PRNU** | Analyzes sensor pattern noise residuals via high-pass/wavelet filtering to detect foreign pixel insertions |
-| **Feature Extraction & Classification** | Pretrained vision backbones (EfficientNet, ConvNeXt, Swin Transformers) fine-tuned on real-vs-synthetic image datasets |
-
-**References:** [PyTorch Docs](https://pytorch.org/docs/) · [`timm`](https://huggingface.co/docs/timm/) · [OpenCV Image Processing](https://docs.opencv.org/4.x/d2/d96/tutorial_py_table_of_contents_imgproc.html) · [SciPy Signal](https://docs.scipy.org/doc/scipy/reference/signal.html) · Krawetz, *"A Picture's Worth... Digital Image Analysis & Forensics"* (Black Hat, 2007) · Frank et al., *"Leveraging Frequency Analysis for Deep Fake Image Recognition"* (ICML, 2020)
-
----
-
-### Part 3 — Video Biometrics & Audio AI
-
-Extracts multimodal temporal signals from video streams and audio tracks to detect deepfake anomalies, voice cloning, and audio-visual sync flaws.
-
-| Technique | Purpose |
-|---|---|
-| **Facial Landmark & Mesh Tracking** | Extracts 3D facial geometry across frames to compute Eye Aspect Ratio (blink patterns), head-pose consistency, and boundary-blending jitter |
-| **Lip-Sync & Phoneme-Viseme Alignment** | Compares audio phonemes against visual visemes (mouth movements) via cross-modal embeddings to spot dubbed/replaced speech |
-| **Spectral Audio Forensics** | Converts raw audio into Mel-Spectrograms, Constant-Q Transforms (CQT), and LFCCs to identify vocoder/TTS synthesis artifacts |
-| **Temporal Frame Extraction** | Decodes synchronized keyframes and audio tracks from multimedia containers without heavy decoding overhead |
-
-**References:** [MediaPipe Face Mesh](https://ai.google.dev/edge/mediapipe/solutions/vision/face_landmarker) · [`ffmpeg-python`](https://github.com/kkroening/ffmpeg-python) · [`librosa`](https://librosa.org/doc/latest/) · [`torchaudio`](https://pytorch.org/audio/stable/) · Agarwal et al., *"Protecting World Leaders Against Deep Fakes Using Facial, Gesture, and Vocal Mannerisms"* (CVPR, 2019) · [ASVspoof Challenge Series](https://www.asvspoof.org/)
-
----
-
-### Part 4 — Ensemble, Grad-CAM & Reports
-
-Aggregates multimodal sub-scores, provides visual explainability, and compiles forensic audit reports.
-
-| Technique | Purpose |
-|---|---|
-| **Score Fusion / Late Ensembling** | Combines image, video-temporal, and audio model probabilities via weighted soft-voting, calibration, or a shallow meta-classifier (Logistic Regression / XGBoost) |
-| **Grad-CAM / Grad-CAM++** | Computes gradients of the target class w.r.t. final convolutional feature maps to produce heatmaps highlighting tampered regions |
-| **Schema Validation & Structured Data** | Enforces strict data types and JSON schemas for all pipeline outputs before reporting |
-| **Automated PDF Generation** | Renders audit-ready forensic summaries with metadata traces, confidence scores, and Grad-CAM overlays |
-
-**References:** [`pytorch-grad-cam`](https://github.com/jacobgil/pytorch-grad-cam) · [scikit-learn Ensemble & Calibration](https://scikit-learn.org/stable/modules/ensemble.html) · [Pydantic v2](https://docs.pydantic.dev/) · [ReportLab](https://docs.reportlab.com/) · Selvaraju et al., *"Grad-CAM: Visual Explanations from Deep Networks via Gradient-Based Localization"* (ICCV, 2017)
-
----
-
-## 🛠️ Tech Stack
-
-- **Deep Learning:** PyTorch, `timm` (EfficientNet, ConvNeXt, Swin Transformer backbones)
-- **Computer Vision / Signal Processing:** OpenCV, SciPy
-- **Video/Audio Processing:** MediaPipe (Face Mesh), `ffmpeg-python`, `librosa`, `torchaudio`
-- **Explainability:** `pytorch-grad-cam`
-- **Ensembling:** scikit-learn (soft-voting, calibration, XGBoost/Logistic Regression meta-classifier)
-- **Data Validation:** Pydantic v2
-- **Reporting:** ReportLab (PDF generation)
-
----
-
-## 🚀 Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.9+
-- `ffmpeg` installed on system PATH (required by `ffmpeg-python`)
+- Python 3.10+
+- CUDA 11.8+ (optional, for GPU acceleration)
 
-### Installation
+### Local Development
+
 ```bash
-git clone https://github.com/<your-org>/deepfake-authenticity-verification.git
-cd deepfake-authenticity-verification
+# 1. Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# 2. Install dependencies
 pip install -r requirements.txt
+
+# 3. Download MediaPipe Face Landmarker (already in /backend/)
+# Verify: ls backend/face_landmarker.task
+
+# 4. Train Part 3 Audio Model (Optional - skip if using pre-trained)
+cd backend/part3_video_audio
+python -m src.training.train_audio
+# Place dataset in: data/train_audio/, data/val_audio/
+# With labels in: data/train_labels.json, data/val_labels.json
+
+# 5. Start FastAPI server
+cd ../../
+uvicorn backend.app:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### Usage
-```bash
-python run_pipeline.py --input path/to/media_file
-```
-
-*(Update with your actual CLI/API entry point and arguments.)*
-
----
-
-## 📊 Output
-
-For every submitted image, video, or audio file, the pipeline produces:
-
-- ✅ **Real / AI-generated verdict** with an overall confidence score
-- 🔥 **Grad-CAM heatmap overlays** highlighting suspected tampered regions
-- 📄 **PDF forensic audit report** containing metadata traces, per-module sub-scores, and visual evidence
-- 🧾 **Structured JSON output** (schema-validated) for programmatic integration
+Visit: `http://localhost:8000/docs` for interactive API documentation
 
 ---
 
 ## 📁 Project Structure
 
 ```
-deepfake-authenticity-verification/
-├── image_forensics/         # Part 2: ELA, FFT/DCT, PRNU, classifier backbones
-├── video_audio_biometrics/  # Part 3: facial landmarks, lip-sync, spectral audio forensics
-├── ensemble_reporting/      # Part 4: score fusion, Grad-CAM, PDF report generation
-├── schemas/                 # Pydantic models / JSON schemas
-├── data/                    # Sample/training data
-├── models/                  # Trained model weights
-├── requirements.txt
-└── README.md
+ForensIQ/
+├── backend/
+│   ├── app.py                          # FastAPI application
+│   ├── config.py                       # Configuration
+│   ├── face_landmarker.task            # Pre-trained MediaPipe model
+│   │
+│   ├── ai-photo-detection-main/        # Part 2: Image Forensics
+│   │   ├── src/
+│   │   │   ├── preprocessing/          # Dataset loading & formatting
+│   │   │   ├── models/                 # Model architectures
+│   │   │   ├── forensics/              # Pixel forensics features
+│   │   │   ├── explainability/         # Grad-CAM visualization
+│   │   │   ├── evaluation/             # Metrics & reporting
+│   │   │   └── training/               # Training loops
+│   │   ├── configs/                    # Model configs (YAML)
+│   │   ├── models/                     # Trained model weights
+│   │   └── requirements.txt
+│   │
+│   ├── part3_video_audio/              # Part 3: Video & Audio
+│   │   ├── src/
+│   │   │   ├── models/
+│   │   │   │   └── pipeline.py         # VideoAudioForensics class
+│   │   │   ├── training/
+│   │   │   │   └── train_audio.py      # Audio model trainer
+│   │   │   ├── data/                   # Training data
+│   │   │   └── utils/                  # Utility functions
+│   │   └── outputs/                    # Saved model weights
+│   │
+│   └── part4_ensemble/                 # Part 4: Ensemble & Reports
+│       ├── __init__.py
+│       └── ensemble_engine.py          # Voting + Report generation
+│
+├── Procfile                            # Render deployment config
+├── runtime.txt                         # Python version for Render
+├── requirements.txt                    # All dependencies
+├── .gitignore
+└── README.md                           # This file
 ```
 
-*(Update to match your actual repo layout.)*
+---
+
+## 🔧 Part 3: Train AudioDeepfakeClassifier
+
+**Dataset Format:**
+```
+data/train_audio/
+├── real_1.wav
+├── real_2.wav
+├── deepfake_1.wav
+├── deepfake_2.wav
+...
+
+data/train_labels.json:
+{
+  "real_1.wav": 0,
+  "deepfake_1.wav": 1,
+  ...
+}
+```
+
+**Training:**
+```bash
+cd backend/part3_video_audio
+python -m src.training.train_audio
+```
+
+**Output:**
+- Model saved: `outputs/audio_deepfake_classifier_YYYYMMDD_HHMMSS.pth`
+- Training history: `outputs/audio_deepfake_classifier_YYYYMMDD_HHMMSS_history.json`
 
 ---
 
-## 🎯 Impact
+## 📊 API Usage
 
-- Gives journalists, platforms, and everyday users a fast way to check content authenticity before sharing
-- Combines multiple independent forensic signals (pixel-level, frequency-domain, biometric, audio) rather than relying on a single detector, improving robustness against unseen generation methods
-- Explainable outputs (Grad-CAM heatmaps + audit PDFs) make results interpretable and defensible, not just a black-box score
+### Analyze Video
+```bash
+curl -X POST "http://localhost:8000/analyze/video" \
+  -F "file=@video.mp4"
+```
+
+**Response:**
+```json
+{
+  "timestamp": "2024-08-15T12:34:56.789123",
+  "input_file": "video.mp4",
+  "file_type": "video",
+  "track_a_synthetic_prob": 0.0,
+  "track_b_tampered_prob": 0.0,
+  "track_c_prnu_match": 0.0,
+  "video_anomaly_score": 0.1234,
+  "audio_anomaly_score": 0.8765,
+  "final_verdict": "AI_GENERATED",
+  "confidence_score": 0.8765,
+  "risk_level": "HIGH",
+  "primary_indicators": [
+    "Audio deepfake indicators (87.65%)"
+  ],
+  "secondary_indicators": [
+    "Unnatural blink pattern"
+  ],
+  "recommendations": [
+    "⚠️ Content appears to be synthetically generated",
+    "Flag for fact-checking and source verification",
+    "Escalate for secondary analysis"
+  ]
+}
+```
+
+### Analyze Image
+```bash
+curl -X POST "http://localhost:8000/analyze/image" \
+  -F "file=@image.jpg" \
+  -d "track_a=0.85&track_b=0.20&track_c=0.95"
+```
 
 ---
 
-## 🔮 Future Scope
+## 🚢 Deploy to Render
 
-- Expand classifier training to keep pace with new generative architectures (newer diffusion/GAN variants)
-- Add browser extension / social-media integration for pre-share verification
-- Real-time video stream analysis for live broadcast verification
-- Expand PRNU/sensor-noise database for camera-source attribution
+1. **Push to GitHub:**
+```bash
+git add .
+git commit -m "Add Part 3, Part 4, and FastAPI integration"
+git push
+```
+
+2. **Connect to Render:**
+   - Go to https://dashboard.render.com
+   - New → Web Service
+   - Connect GitHub repo
+   - Settings:
+     - **Build Command:** `pip install -r requirements.txt`
+     - **Start Command:** `uvicorn backend.app:app --host 0.0.0.0 --port 8000`
+     - **Environment:** Add `PYTHON_VERSION=3.10`
+
+3. **Test:**
+   - Health check: `https://your-service.onrender.com/health`
+   - Docs: `https://your-service.onrender.com/docs`
 
 ---
 
-## 👥 Team
+## 🔬 Model Components
 
-*(Add team member names and roles here)*
+### Part 2: Image AI & Pixel Forensics
+- **Track A:** Synthetic media detection (REAL vs AI-GENERATED)
+  - Detects: GAN, Diffusion, DALL-E, Midjourney
+  - Methods: Fourier analysis, VAE anomalies, checkerboard artifacts
+  
+- **Track B:** Image tampering & localization (REAL vs MANIPULATED)
+  - Detects: Splicing, Copy-Move, Inpainting
+  - Output: Binary tampering mask
+  
+- **Track C:** PRNU camera sensor verification
+  - Reference: RAISE-1k (Nikon D7000, D90, D40)
+  - Metric: Peak-to-Correlation Energy (PCE)
+
+### Part 3: Video Biometrics & Audio AI
+- **Video Biometrics:**
+  - Eye Aspect Ratio (EAR) for blink dynamics
+  - Head jitter detection
+  - Face landmark tracking via MediaPipe
+  
+- **Audio Deepfake Detection:**
+  - Mel-spectrogram feature extraction
+  - Neural classifier (CNN backbone)
+  - Spectral flatness & MFCC analysis
+
+### Part 4: Ensemble & Reports
+- **Weighted Voting:**
+  - Track A: 25% weight
+  - Track B: 25% weight
+  - Track C: 15% weight
+  - Video: 20% weight
+  - Audio: 15% weight
+  
+- **Output:** Structured JSON report with:
+  - Final verdict (AUTHENTIC, AI_GENERATED, TAMPERED, UNKNOWN)
+  - Confidence score
+  - Risk level (LOW, MEDIUM, HIGH, CRITICAL)
+  - Primary/secondary indicators
+  - Actionable recommendations
+
+---
+
+## 📝 Example Report
+
+```json
+{
+  "timestamp": "2024-08-15T12:34:56",
+  "input_file": "suspect_video.mp4",
+  "file_type": "video",
+  "final_verdict": "AI_GENERATED",
+  "confidence_score": 0.8765,
+  "risk_level": "CRITICAL",
+  "primary_indicators": [
+    "Audio deepfake indicators (87.65%)",
+    "Video biometric anomalies detected (52.10%)"
+  ],
+  "recommendations": [
+    "🚨 URGENT: Escalate to forensics specialist",
+    "Preserve all original file bytes",
+    "Flag for fact-checking and source verification"
+  ]
+}
+```
+
+---
+
+## 🐛 Troubleshooting
+
+### Error: `face_landmarker.task not found`
+```bash
+# Re-download the model
+curl -o backend/face_landmarker.task \
+  https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
+```
+
+### Error: `AudioDeepfakeClassifier weights not found`
+```bash
+# Train the model first
+cd backend/part3_video_audio
+python -m src.training.train_audio
+```
+
+### GPU Memory Issues
+```python
+# In app.py, modify startup_event():
+import torch
+torch.cuda.empty_cache()
+torch.set_num_threads(4)  # Limit threads
+```
+
+---
+
+## 📚 References
+
+- [MediaPipe FaceLandmarker](https://developers.google.com/mediapipe/solutions/vision/face_landmarker)
+- [FastAPI Documentation](https://fastapi.tiangolo.com/)
+- [Render Deployment Guide](https://render.com/docs)
+- [PyTorch Audio Forensics](https://pytorch.org/audio/)
+
+---
 
 ## 📄 License
 
-*(Add your chosen license, e.g., MIT)*
+This project is for research and forensics purposes. Use responsibly.
+
+---
+
+**Last Updated:** August 15, 2024
