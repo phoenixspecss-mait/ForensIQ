@@ -105,11 +105,15 @@ async def startup_event():
 
     # Initialize Part 3
     try:
-        face_landmarker_path = str(BACKEND_DIR / "face_landmarker.task")
-        if not os.path.exists(face_landmarker_path):
-            face_landmarker_path = "backend/face_landmarker.task"
-        if not os.path.exists(face_landmarker_path):
-            raise FileNotFoundError(f"face_landmarker.task not found at {face_landmarker_path}")
+        possible_paths = [
+            BACKEND_DIR / "face_landmarker.task",
+            Path.cwd() / "backend" / "face_landmarker.task",
+            Path.cwd() / "face_landmarker.task",
+            Path("backend/face_landmarker.task").resolve(),
+        ]
+        face_landmarker_path = next((str(p) for p in possible_paths if p.exists()), None)
+        if not face_landmarker_path:
+            raise FileNotFoundError("face_landmarker.task not found in any backend path")
 
         part3_pipeline = VideoAudioForensics(landmarker_model_path=face_landmarker_path)
         print("✅ Part 3 (Video/Audio) initialized")
