@@ -34,7 +34,7 @@ pip install -r requirements.txt
 ### 3. Run Backend Verification Suite
 
 ```bash
-# Execute end-to-end unit tests verifying all 4 modules and API routes
+# Execute end-to-end unit tests verifying all modules and API routes
 ./venv/bin/python backend/test_backend_models.py
 ```
 
@@ -54,7 +54,7 @@ uvicorn backend.app:app --host 0.0.0.0 --port 8000
 
 ```
                           ┌────────────────────────────────────────────────────────┐
-                          │         PART 1: GATEWAY & METADATA EXTRACTION          │
+                          │            GATEWAY & METADATA EXTRACTION               │
                           │   • File Validation (Type/Size)   • EXIF Extraction    │
                           │   • C2PA Manifest Reader          • Redis/Celery Queue │
                           └───────────────────────────┬────────────────────────────┘
@@ -64,7 +64,7 @@ uvicorn backend.app:app --host 0.0.0.0 --port 8000
                ┌──────────────────────────────────────┼──────────────────────────────────────┐
                │                                      │                                      │
  ┌─────────────▼──────────────┐         ┌─────────────▼──────────────┐         ┌─────────────▼──────────────┐
- │  PART 2: IMAGE FORENSICS   │         │   PART 3: VIDEO & AUDIO    │         │  DIRECT MODALITY UPLOAD    │
+ │   IMAGE FORENSICS ENGINE   │         │   VIDEO & AUDIO FORENSICS  │         │  DIRECT MODALITY UPLOAD    │
  │  (deepfake-detector-main)  │         │      (part3_video_audio)   │         │ (Images / Videos / Audio)  │
  │                            │         │                            │         │                            │
  │ • BaselineNet & ForensicNet│         │ • MediaPipe FaceLandmarker │         │ • POST /analyze/image      │
@@ -79,8 +79,8 @@ uvicorn backend.app:app --host 0.0.0.0 --port 8000
                └──────────────────────────────────────┼──────────────────────────────────────┘
                                                       │
                                        ┌──────────────▼──────────────┐
-                                       │   PART 4: ENSEMBLE ENGINE    │
-                                       │    (part4_ensemble & deepfake)
+                                       │   MULTIMODAL ENSEMBLE ENGINE │
+                                       │    (ensemble & deepfake)    │
                                        │                             │
                                        │ • Weighted Soft Voting      │
                                        │ • Meta-Classifier Fusion    │
@@ -100,7 +100,7 @@ uvicorn backend.app:app --host 0.0.0.0 --port 8000
 
 ## 🛠 Complete Module Breakdown
 
-### 📦 Part 1: Gateway, Queuing & Metadata
+### 📦 Gateway, Queuing & Metadata
 - **Primary Libraries**: `FastAPI`, `Celery`, `Redis`, `c2pa-python`, `exifread`
 - **Features**:
   - Validates uploads against file extension allowlists (`.jpg`, `.png`, `.mp4`, `.wav`, `.mp3`) and file size limits (100MB).
@@ -108,7 +108,7 @@ uvicorn backend.app:app --host 0.0.0.0 --port 8000
   - Parses C2PA Content Credentials provenance manifests (`c2pa-python`) to verify digital signature authenticity.
   - Asynchronous background job queue backed by `Celery` + `Redis`.
 
-### 🖼 Part 2: Image AI & Pixel Forensics (`deepfake-detector-main`)
+### 🖼 Image AI & Pixel Forensics (`deepfake-detector-main`)
 - **Primary Libraries**: `PyTorch`, `OpenCV`, `timm`, `NumPy`, `SciPy`
 - **Features**:
   - **Neural Backbones**: `BaselineNet` (single-stream EfficientNet-b0 via `timm`) and `ForensicNet` (dual-stream RGB + Noise Residual fusion).
@@ -117,14 +117,14 @@ uvicorn backend.app:app --host 0.0.0.0 --port 8000
     - **Track B (Tampering & Splicing)**: Error Level Analysis (ELA) measuring JPEG re-compression rate variances across image regions.
     - **Track C (PRNU Sensor Verification)**: Denoised high-frequency noise residual standard deviation measuring camera sensor fingerprint consistency.
 
-### 🎥 Part 3: Video Biometrics & Audio AI (`part3_video_audio`)
+### 🎥 Video Biometrics & Audio AI (`part3_video_audio`)
 - **Primary Libraries**: `ffmpeg-python`, `MediaPipe`, `librosa`, `torchaudio`
 - **Features**:
   - **Video Biometrics**: Facial landmark tracking via `MediaPipe` `FaceLandmarker` analyzing Eye Aspect Ratio (EAR), blink variance dynamics, and erratic head jitter.
   - **Audio Track Extraction**: Automated 16kHz mono audio extraction using `ffmpeg-python`.
   - **Voice Deepfake Detection**: Audio Spectrogram conversion using `torchaudio.transforms.MelSpectrogram` passed into PyTorch `AudioDeepfakeClassifier` CNN model.
 
-### 📊 Part 4: Ensemble Engine, Explainability & PDF Reports (`part4_ensemble` & `deepfake`)
+### 📊 Ensemble Engine, Explainability & PDF Reports (`part4_ensemble` & `deepfake`)
 - **Primary Libraries**: `PyTorch-GradCAM`, `ReportLab`, `Pydantic`, `scikit-learn`
 - **Features**:
   - **Ensemble Fusion**: Weighted soft-voting scheme and `scikit-learn` `LogisticRegression` meta-classifier fusing multimodal probabilities.
@@ -157,7 +157,7 @@ curl -X POST "http://localhost:8000/gateway/upload" \
 }
 ```
 
-### 2. Direct Image Analysis (Part 2 + Part 4)
+### 2. Direct Image Analysis
 ```bash
 curl -X POST "http://localhost:8000/analyze/image" \
   -F "file=@sample_photo.jpg"
@@ -209,24 +209,24 @@ curl -X POST "http://localhost:8000/analyze/deepfake" \
 ```
 Spidey AI/
 ├── backend/
-│   ├── Part-1/                         # Part 1: Gateway & Queuing
+│   ├── Part-1/                         # Gateway & Metadata Service
 │   │   ├── main.py                     # Standalone FastAPI gateway
 │   │   ├── celery_app.py               # Redis/Celery queue setup
 │   │   ├── tasks.py                    # Metadata background tasks
 │   │   └── db.py                       # SQLite job history
 │   │
-│   ├── deepfake-detector-main/         # Part 2: Image AI & Pixel Forensics
+│   ├── deepfake-detector-main/         # Image AI & Pixel Forensics Engine
 │   │   ├── model.py                    # BaselineNet & ForensicNet (timm EfficientNet-b0)
 │   │   ├── forensics.py                # ELA, noise residual, 2D FFT spectrum
 │   │   ├── predict.py                  # Predict & multi-track scoring (Track A/B/C)
 │   │   ├── dataset.py                  # PyTorch Dataset loader
 │   │   └── train.py                    # Model training loop
 │   │
-│   ├── part3_video_audio/              # Part 3: Video Biometrics & Audio AI
+│   ├── part3_video_audio/              # Video Biometrics & Audio AI
 │   │   ├── src/models/pipeline.py      # MediaPipe FaceLandmarker + PyTorch AudioClassifier
 │   │   └── src/training/train_audio.py # Audio deepfake training pipeline
 │   │
-│   ├── part4_ensemble/                 # Part 4: Multi-Track Ensemble Engine
+│   ├── part4_ensemble/                 # Multi-Track Ensemble Engine
 │   │   └── __init__.py                 # EnsembleForensicsEngine & ForensicsReport
 │   │
 │   ├── deepfake/                       # Multimodal Fusion & Report Generation
@@ -270,12 +270,12 @@ The system includes an end-to-end verification script testing every sub-module a
 
 | Requirement | Platform Implementation | Status |
 | :--- | :--- | :---: |
-| **Detect manipulated images** | Part 2 `deepfake-detector-main` Error Level Analysis + Noise Residual Splicing Detection | ✅ |
-| **Detect AI-generated synthetic images** | Part 2 `deepfake-detector-main` `BaselineNet` / `ForensicNet` + 2D FFT Spectral Grid Analysis | ✅ |
-| **Detect deepfake videos** | Part 3 `MediaPipe` FaceLandmarker (Eye Aspect Ratio, blink dynamics, head jitter) | ✅ |
-| **Detect AI-generated voices** | Part 3 `torchaudio` MelSpectrogram + PyTorch `AudioDeepfakeClassifier` | ✅ |
-| **Metadata & Provenance Verification** | Part 1 `exifread` camera metadata + `c2pa-python` Content Credentials manifest verification | ✅ |
-| **Provide confidence score & verdict** | Part 4 `EnsembleForensicsEngine` weighted soft-vote / meta-classifier scoring (`0.0 - 1.0`) | ✅ |
+| **Detect manipulated images** | `deepfake-detector-main` Error Level Analysis + Noise Residual Splicing Detection | ✅ |
+| **Detect AI-generated synthetic images** | `deepfake-detector-main` `BaselineNet` / `ForensicNet` + 2D FFT Spectral Grid Analysis | ✅ |
+| **Detect deepfake videos** | `MediaPipe` FaceLandmarker (Eye Aspect Ratio, blink dynamics, head jitter) | ✅ |
+| **Detect AI-generated voices** | `torchaudio` MelSpectrogram + PyTorch `AudioDeepfakeClassifier` | ✅ |
+| **Metadata & Provenance Verification** | `exifread` camera metadata + `c2pa-python` Content Credentials manifest verification | ✅ |
+| **Provide confidence score & verdict** | `EnsembleForensicsEngine` weighted soft-vote / meta-classifier scoring (`0.0 - 1.0`) | ✅ |
 | **User actionable report** | Structured JSON API output + PDF forensic audit documentation (`ReportLab`) | ✅ |
 
 ---
