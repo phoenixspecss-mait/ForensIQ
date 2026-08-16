@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:forensiq/services/database/firebase_database_provider.dart';
 import 'package:forensiq/theme/app_theme.dart';
 
 class AccountView extends StatefulWidget {
@@ -16,8 +18,36 @@ class _AccountViewState extends State<AccountView> {
   bool _twoFactorEnabled = true;
   bool _alertNotificationsEnabled = true;
 
-  final TextEditingController _nameController = TextEditingController(text: "Dr. Aris Vance");
-  final TextEditingController _emailController = TextEditingController(text: "a.vance@forensiq.lab");
+  late TextEditingController _nameController;
+  late TextEditingController _emailController;
+  final FirebaseDatabaseProvider _db = FirebaseDatabaseProvider();
+
+  @override
+  void initState() {
+    super.initState();
+    final user = FirebaseAuth.instance.currentUser;
+    _nameController = TextEditingController(
+      text: user?.displayName ?? (user?.email != null ? user!.email!.split('@').first : "Dr. Aris Vance"),
+    );
+    _emailController = TextEditingController(
+      text: user?.email ?? user?.phoneNumber ?? "a.vance@forensiq.lab",
+    );
+    _loadUserSettings();
+  }
+
+  Future<void> _loadUserSettings() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final settings = await _db.fetchUserSettings(user.uid);
+      if (settings != null && mounted) {
+        setState(() {
+          _sensitivity = (settings['sensitivity'] as num?)?.toDouble() ?? 85.0;
+          _twoFactorEnabled = settings['two_factor'] ?? true;
+          _alertNotificationsEnabled = settings['alerts'] ?? true;
+        });
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -26,14 +56,26 @@ class _AccountViewState extends State<AccountView> {
     super.dispose();
   }
 
-  void saveChanges() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Platform settings saved successfully!"),
-        backgroundColor: AppTheme.neonMint,
-        duration: Duration(seconds: 2),
-      ),
-    );
+  Future<void> saveChanges() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await _db.saveUserSettings(user.uid, {
+        "name": _nameController.text,
+        "email": _emailController.text,
+        "sensitivity": _sensitivity,
+        "two_factor": _twoFactorEnabled,
+        "alerts": _alertNotificationsEnabled,
+      });
+    }
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Platform settings saved to database successfully!"),
+          backgroundColor: AppTheme.neonMint,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   @override

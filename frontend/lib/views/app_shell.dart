@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -366,33 +367,41 @@ class _AppShellState extends State<AppShell> {
               Container(width: 1, height: 24, color: AppTheme.cardBorder),
               const SizedBox(width: 12),
 
-              // Profile Avatar Button
-              InkWell(
-                onTap: () => setState(() => _currentTabIndex = 4),
-                borderRadius: BorderRadius.circular(20),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 32,
-                      height: 32,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppTheme.neonMint,
-                      ),
-                      child: Center(
-                        child: Text(
-                          "AV",
-                          style: GoogleFonts.inter(color: Colors.black, fontSize: 12, fontWeight: FontWeight.bold),
+              // Profile Avatar Button (Dynamic from FirebaseAuth)
+              Builder(
+                builder: (context) {
+                  final user = FirebaseAuth.instance.currentUser;
+                  final displayName = user?.displayName ?? (user?.email != null ? user!.email!.split('@').first : "Dr. A. Vance");
+                  final initials = displayName.length >= 2 ? displayName.substring(0, 2).toUpperCase() : "AV";
+
+                  return InkWell(
+                    onTap: () => setState(() => _currentTabIndex = 4),
+                    borderRadius: BorderRadius.circular(20),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppTheme.neonMint,
+                          ),
+                          child: Center(
+                            child: Text(
+                              initials,
+                              style: GoogleFonts.inter(color: Colors.black, fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 8),
+                        Text(
+                          displayName,
+                          style: GoogleFonts.inter(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      "Dr. A. Vance",
-                      style: GoogleFonts.inter(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
-                    ),
-                  ],
-                ),
+                  );
+                },
               ),
             ],
           ),

@@ -1,6 +1,9 @@
+import 'dart:math';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:forensiq/services/database/firebase_database_provider.dart';
 import 'package:forensiq/theme/app_theme.dart';
 
 class ApiView extends StatefulWidget {
@@ -11,11 +14,50 @@ class ApiView extends StatefulWidget {
 }
 
 class _ApiViewState extends State<ApiView> {
+  final FirebaseDatabaseProvider _db = FirebaseDatabaseProvider();
+  String _prodKey = "fiq_live_f892e947a102b3c4d5e6f7a8b9c0a9c2";
+  final String _stagingKey = "fiq_test_1b44c839d01e2f3a4b5c6d7e8f93f81";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserKey();
+  }
+
+  Future<void> _loadUserKey() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final key = await _db.fetchUserApiKey(user.uid);
+      if (key != null && key.isNotEmpty && mounted) {
+        setState(() => _prodKey = key);
+      }
+    }
+  }
+
+  void _createNewKey() async {
+    final randHex = List.generate(24, (_) => Random().nextInt(16).toRadixString(16)).join();
+    final newKey = "fiq_live_$randHex";
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await _db.saveUserApiKey(user.uid, newKey);
+    }
+    if (mounted) {
+      setState(() => _prodKey = newKey);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("New Production API Key generated & saved to database!"),
+          backgroundColor: AppTheme.neonMint,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
   void _copyKey(String key) {
     Clipboard.setData(ClipboardData(text: key));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text("Key copied to clipboard!"),
+        content: Text("API Key copied to clipboard!"),
         backgroundColor: AppTheme.neonMint,
         duration: Duration(seconds: 2),
       ),
@@ -68,7 +110,7 @@ class _ApiViewState extends State<ApiView> {
                   ),
                   const SizedBox(width: 12),
                   ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: _createNewKey,
                     icon: const Icon(Icons.add_rounded, color: Colors.black, size: 18),
                     label: Text("+ Create New Key", style: GoogleFonts.inter(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 13)),
                     style: ElevatedButton.styleFrom(
@@ -161,7 +203,8 @@ class _ApiViewState extends State<ApiView> {
             title: "Production Environment",
             statusColor: AppTheme.neonMint,
             createdDate: "Created on Oct 24, 2023",
-            keyText: "sk_live_f892e*************************a9c2",
+            keyText: "${_prodKey.substring(0, 13)}*************************${_prodKey.substring(_prodKey.length - 4)}",
+            fullKey: _prodKey,
           ),
           const SizedBox(height: 16),
 
@@ -170,7 +213,8 @@ class _ApiViewState extends State<ApiView> {
             title: "Staging Testing",
             statusColor: Colors.orangeAccent,
             createdDate: "Created on Nov 02, 2023",
-            keyText: "sk_test_1b44c*************************3f81",
+            keyText: "${_stagingKey.substring(0, 13)}*************************${_stagingKey.substring(_stagingKey.length - 4)}",
+            fullKey: _stagingKey,
           ),
         ],
       ),
@@ -182,6 +226,7 @@ class _ApiViewState extends State<ApiView> {
     required Color statusColor,
     required String createdDate,
     required String keyText,
+    required String fullKey,
   }) {
     return Container(
       padding: const EdgeInsets.all(18),
@@ -230,10 +275,10 @@ class _ApiViewState extends State<ApiView> {
               const SizedBox(width: 8),
               IconButton(
                 icon: const Icon(Icons.copy_rounded, color: AppTheme.inconclusiveGray, size: 18),
-                onPressed: () => _copyKey(keyText),
+                onPressed: () => _copyKey(fullKey),
               ),
               OutlinedButton.icon(
-                onPressed: () {},
+                onPressed: _createNewKey,
                 icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 14),
                 label: Text("Roll", style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                 style: OutlinedButton.styleFrom(
