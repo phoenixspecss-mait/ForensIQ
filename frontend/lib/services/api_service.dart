@@ -109,6 +109,9 @@ class ApiService {
 
   // 3. Scan Verdict & Detailed Analysis Report (Screen 3)
   static Future<Map<String, dynamic>> fetchScanReport(String jobId) async {
+    if (jobId.trim().isEmpty) {
+      return {};
+    }
     try {
       final url = Uri.parse("$baseUrl/api/scan/$jobId/report");
       final response = await http.get(url).timeout(const Duration(seconds: 4));
@@ -118,24 +121,7 @@ class ApiService {
     } catch (e) {
       debugPrint("fetchScanReport error: $e");
     }
-    // Fallback matching Screen 3 mockup
-    return {
-      "report_id": "DF-7734",
-      "verdict": "VERDICT: LIKELY MANIPULATED",
-      "verdict_raw": "LIKELY_MANIPULATED",
-      "verdict_description": "Deepfake signatures detected in primary subject.",
-      "authenticity_percentage": 24,
-      "analysis_breakdown": {
-        "facial_heatmap": {
-          "title": "FACIAL HEATMAP",
-          "asset_image": "assets/images/state_union.jpg",
-          "manipulation_probability": 89.4,
-          "thermal_variances": ["+2.3°C (Eyes)", "+3.1°C (Mouth)"],
-          "explanation": "Anomalies detected in lip-sync and ocular reflections. High probability of face-swap technology."
-        }
-      },
-      "pdf_export_url": "$baseUrl/api/scan/$jobId/export-pdf"
-    };
+    return {};
   }
 
   // 4. Verification Certificate (Screen 4)

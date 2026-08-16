@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:forensiq/services/api_service.dart';
 import 'package:forensiq/theme/app_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -22,21 +23,58 @@ class _ScanReportViewState extends State<ScanReportView> {
   Map<String, dynamic>? _reportData;
   bool _isLoading = true;
   bool _isPlaying = false;
+  String _activeJobId = "";
 
   @override
   void initState() {
     super.initState();
-    _loadReport();
+    _activeJobId = widget.jobId;
+    if (_activeJobId.isNotEmpty) {
+      _loadReport(_activeJobId);
+    } else {
+      _isLoading = false;
+    }
   }
 
-  Future<void> _loadReport() async {
-    final data = await ApiService.fetchScanReport(widget.jobId);
+  Future<void> _loadReport([String? targetId]) async {
+    final idToFetch = targetId ?? _activeJobId;
+    if (idToFetch.isEmpty) {
+      if (mounted) setState(() => _isLoading = false);
+      return;
+    }
+    setState(() => _isLoading = true);
+    final data = await ApiService.fetchScanReport(idToFetch);
     if (mounted) {
       setState(() {
         _reportData = data;
         _isLoading = false;
       });
     }
+  }
+
+  Future<void> _pickAndAnalyzeFile() async {
+    try {
+      final picker = ImagePicker();
+      final XFile? file = await picker.pickMedia();
+
+      if (file != null) {
+        setState(() => _isLoading = true);
+        final res = await ApiService.uploadFileForGateway(file.path, file.name);
+        if (res['success'] == true && res['data'] != null) {
+          final jobId = res['data']['job_id'] ?? "job_${DateTime.now().millisecondsSinceEpoch}";
+          _activeJobId = jobId;
+          await ApiService.triggerGatewayAnalyze(
+            jobId,
+            fileType: file.name.toLowerCase().endsWith('.mp4') ? 'video' : 'image',
+          );
+          await _loadReport(jobId);
+          return;
+        }
+      }
+    } catch (e) {
+      debugPrint("File pick notice: $e");
+    }
+    if (mounted) setState(() => _isLoading = false);
   }
 
   Future<void> _exportPdf() async {
@@ -70,13 +108,101 @@ class _ScanReportViewState extends State<ScanReportView> {
       );
     }
 
-    final targetFilename = _reportData?['original_filename'] ?? "interview_raw_04.mp4";
-    final reportId = _reportData?['report_id'] ?? "DF-8924-Alpha";
-    final manipProb = double.tryParse((_reportData?['manipulation_probability'] ?? 82.0).toString()) ?? 82.0;
-    final aiGenPct = double.tryParse((_reportData?['ai_gen_percentage'] ?? 64.0).toString()) ?? 64.0;
-    final deepfakePct = double.tryParse((_reportData?['deepfake_percentage'] ?? 91.0).toString()) ?? 91.0;
-    final cameraModel = _reportData?['camera_model'] ?? "H.264 (High Profile) / AAC";
-    final verdictDesc = _reportData?['verdict_description'] ?? "High confidence of alteration";
+    if (_reportData == null || _reportData!.isEmpty) {
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Analysis Report",
+              style: GoogleFonts.inter(
+                color: Colors.white,
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              "Upload a media artifact or select a scan from history to generate an evidence report.",
+              style: GoogleFonts.inter(
+                color: AppTheme.inconclusiveGray,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 32),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(48),
+              decoration: BoxDecoration(
+                color: AppTheme.cardDark,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppTheme.cardBorder),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: AppTheme.neonMint.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.biotech_rounded, color: AppTheme.neonMint, size: 36),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    "No Media Artifact Selected",
+                    style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Upload an image, video, or audio file from your device to run multi-modal AI deepfake analysis, EXIF metadata extraction, and generate a certified report.",
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.inter(
+                      color: AppTheme.inconclusiveGray,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  ElevatedButton.icon(
+                    onPressed: _pickAndAnalyzeFile,
+                    icon: const Icon(Icons.upload_file_rounded, color: Colors.black, size: 20),
+                    label: Text(
+                      "Upload Media for Analysis",
+                      style: GoogleFonts.inter(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.neonMint,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final targetFilename = _reportData?['original_filename'] ?? "uploaded_artifact.jpg";
+    final reportId = _reportData?['report_id'] ?? "DF-8924";
+    final manipProb = double.tryParse((_reportData?['manipulation_probability'] ?? 0.0).toString()) ?? 0.0;
+    final aiGenPct = double.tryParse((_reportData?['ai_gen_percentage'] ?? 0.0).toString()) ?? 0.0;
+    final deepfakePct = double.tryParse((_reportData?['deepfake_percentage'] ?? 0.0).toString()) ?? 0.0;
+    final cameraModel = _reportData?['camera_model'] ?? "Standard Camera / Sensor";
+    final verdictDesc = _reportData?['verdict_description'] ?? "Authenticity verified";
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24.0),
