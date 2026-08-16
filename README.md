@@ -1,4 +1,4 @@
-# 🔬 ForensIQ v2.0 - Multimodal Deepfake & Digital Media Authenticity Verification Platform
+# 🔬 ForensIQ v1.0 - Multimodal Deepfake & Digital Media Authenticity Verification Platform
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104.1-green.svg)](https://fastapi.tiangolo.com/)
