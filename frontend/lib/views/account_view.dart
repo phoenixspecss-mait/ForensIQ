@@ -63,6 +63,8 @@ class _AccountViewState extends State<AccountView> {
         "name": _nameController.text,
         "email": _emailController.text,
         "sensitivity": _sensitivity,
+        "deepfake_model": _deepfakeModelEnabled,
+        "metadata_scrutiny": _metadataScrutinyEnabled,
         "two_factor": _twoFactorEnabled,
         "alerts": _alertNotificationsEnabled,
       });
@@ -204,7 +206,14 @@ class _AccountViewState extends State<AccountView> {
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: AppTheme.cardBorder),
                 ),
-                child: Text("High (85%)", style: GoogleFonts.inter(color: AppTheme.neonMint, fontSize: 12, fontWeight: FontWeight.bold)),
+                child: Text(
+                  _sensitivity < 40
+                      ? "Permissive (${_sensitivity.round()}%)"
+                      : (_sensitivity < 75
+                          ? "Balanced (${_sensitivity.round()}%)"
+                          : "Aggressive (${_sensitivity.round()}%)"),
+                  style: GoogleFonts.inter(color: AppTheme.neonMint, fontSize: 12, fontWeight: FontWeight.bold),
+                ),
               ),
             ],
           ),
