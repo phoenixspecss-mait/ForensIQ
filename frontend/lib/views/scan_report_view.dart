@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -8,11 +9,13 @@ import 'package:url_launcher/url_launcher.dart';
 class ScanReportView extends StatefulWidget {
   final String jobId;
   final VoidCallback onClose;
+  final Uint8List? imageBytes;
 
   const ScanReportView({
     super.key,
     required this.jobId,
     required this.onClose,
+    this.imageBytes,
   });
 
   @override
@@ -24,10 +27,12 @@ class _ScanReportViewState extends State<ScanReportView> {
   bool _isLoading = true;
   bool _isPlaying = false;
   String _activeJobId = "";
+  Uint8List? _uploadedImageBytes;
 
   @override
   void initState() {
     super.initState();
+    _uploadedImageBytes = widget.imageBytes;
     _activeJobId = widget.jobId;
     if (_activeJobId.isNotEmpty) {
       _loadReport(_activeJobId);
@@ -58,7 +63,11 @@ class _ScanReportViewState extends State<ScanReportView> {
       final XFile? file = await picker.pickMedia();
 
       if (file != null) {
-        setState(() => _isLoading = true);
+        final bytes = await file.readAsBytes();
+        setState(() {
+          _isLoading = true;
+          _uploadedImageBytes = bytes;
+        });
         final res = await ApiService.uploadFileForGateway(file.path, file.name);
         if (res['success'] == true && res['data'] != null) {
           final jobId = res['data']['job_id'] ?? "job_${DateTime.now().millisecondsSinceEpoch}";
@@ -336,62 +345,51 @@ class _ScanReportViewState extends State<ScanReportView> {
                 ),
               ),
 
-              // Video Frame with Overlay Annotations
+              // Video / Photo Frame Container
               Container(
                 height: 380,
                 width: double.infinity,
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage("assets/images/state_union.jpg"),
-                    fit: BoxFit.cover,
-                  ),
-                ),
+                color: Colors.black,
                 child: Stack(
+                  alignment: Alignment.center,
                   children: [
-                    // Face Bounding Box 1 (MANIPULATION DETECTED: LIP-SYNC)
-                    Positioned(
-                      top: 60,
-                      left: 120,
-                      child: Container(
-                        width: 140,
-                        height: 140,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: AppTheme.manipulatedRed, width: 2),
-                        ),
-                        child: Align(
-                          alignment: Alignment.topLeft,
-                          child: Container(
-                            color: AppTheme.manipulatedRed,
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            child: Text(
-                              "MANIPULATION DETECTED: LIP-SYNC",
-                              style: GoogleFonts.firaCode(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
-                            ),
+                    if (_uploadedImageBytes != null)
+                      Image.memory(
+                        _uploadedImageBytes!,
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.contain,
+                      )
+                    else
+                      Container(
+                        color: const Color(0xFF0D1815),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.analytics_outlined, color: AppTheme.neonMint, size: 48),
+                              const SizedBox(height: 12),
+                              Text("Forensics Media Artifact Active", style: GoogleFonts.inter(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 4),
+                              Text(filename, style: GoogleFonts.firaCode(color: AppTheme.inconclusiveGray, fontSize: 12)),
+                            ],
                           ),
                         ),
                       ),
-                    ),
 
-                    // Face Bounding Box 2 (ANOMALY: LIGHTING INCONSISTENCY)
+                    // Dynamic AI Scan Overlay Box
                     Positioned(
-                      top: 130,
-                      left: 270,
+                      top: 40,
+                      left: 60,
                       child: Container(
-                        width: 100,
-                        height: 160,
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.orangeAccent, width: 2),
+                          border: Border.all(color: AppTheme.neonMint, width: 2),
+                          color: Colors.black45,
                         ),
-                        child: Align(
-                          alignment: Alignment.topLeft,
-                          child: Container(
-                            color: Colors.orangeAccent,
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            child: Text(
-                              "ANOMALY: LIGHTING INCONSISTENCY",
-                              style: GoogleFonts.firaCode(color: Colors.black, fontSize: 8, fontWeight: FontWeight.bold),
-                            ),
-                          ),
+                        child: Text(
+                          "AI MODEL MESH: SPATIAL ANALYSIS ACTIVE",
+                          style: GoogleFonts.firaCode(color: AppTheme.neonMint, fontSize: 10, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),

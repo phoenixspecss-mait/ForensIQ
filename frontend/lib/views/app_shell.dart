@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,7 +21,8 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   int _currentTabIndex = 0; // 0: Dashboard, 1: Recent Scans, 2: History, 3: API, 4: Settings
-  String _activeJobId = "SCAN-8924-Alpha";
+  String _activeJobId = "";
+  Uint8List? _activeImageBytes;
   bool _isScanningActive = false;
   final TextEditingController _searchController = TextEditingController();
 
@@ -36,6 +38,8 @@ class _AppShellState extends State<AppShell> {
       final XFile? file = await picker.pickMedia();
 
       if (file != null) {
+        final bytes = await file.readAsBytes();
+        _activeImageBytes = bytes;
         final res = await ApiService.uploadFileForGateway(file.path, file.name);
         if (res['success'] == true && res['data'] != null) {
           final jobId = res['data']['job_id'] ?? "job_${DateTime.now().millisecondsSinceEpoch}";
@@ -59,6 +63,7 @@ class _AppShellState extends State<AppShell> {
   void _openScanDetails(String jobId, String verdict) {
     setState(() {
       _activeJobId = jobId;
+      _activeImageBytes = null;
       _currentTabIndex = 1;
     });
   }
@@ -85,6 +90,7 @@ class _AppShellState extends State<AppShell> {
             )
           : ScanReportView(
               jobId: _activeJobId,
+              imageBytes: _activeImageBytes,
               onClose: () => setState(() => _currentTabIndex = 0),
             ),
       HistoryView(
