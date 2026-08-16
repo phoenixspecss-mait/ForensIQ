@@ -37,7 +37,12 @@ class _AppShellState extends State<AppShell> {
       if (file != null) {
         final res = await ApiService.uploadFileForGateway(file.path, file.name);
         if (res['success'] == true && res['data'] != null) {
-          _activeJobId = res['data']['job_id'] ?? "job_${DateTime.now().millisecondsSinceEpoch}";
+          final jobId = res['data']['job_id'] ?? "job_${DateTime.now().millisecondsSinceEpoch}";
+          _activeJobId = jobId;
+          await ApiService.triggerGatewayAnalyze(
+            jobId,
+            fileType: file.name.toLowerCase().endsWith('.mp4') ? 'video' : 'image',
+          );
         }
       }
     } catch (e) {

@@ -70,6 +70,14 @@ class _ScanReportViewState extends State<ScanReportView> {
       );
     }
 
+    final targetFilename = _reportData?['original_filename'] ?? "interview_raw_04.mp4";
+    final reportId = _reportData?['report_id'] ?? "DF-8924-Alpha";
+    final manipProb = double.tryParse((_reportData?['manipulation_probability'] ?? 82.0).toString()) ?? 82.0;
+    final aiGenPct = double.tryParse((_reportData?['ai_gen_percentage'] ?? 64.0).toString()) ?? 64.0;
+    final deepfakePct = double.tryParse((_reportData?['deepfake_percentage'] ?? 91.0).toString()) ?? 91.0;
+    final cameraModel = _reportData?['camera_model'] ?? "H.264 (High Profile) / AAC";
+    final verdictDesc = _reportData?['verdict_description'] ?? "High confidence of alteration";
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -92,7 +100,7 @@ class _ScanReportViewState extends State<ScanReportView> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "ID: ${widget.jobId.isEmpty ? 'SCAN-8924-Alpha' : widget.jobId} | Target: interview_raw_04.mp4",
+                    "ID: $reportId | Target: $targetFilename",
                     style: GoogleFonts.firaCode(
                       color: AppTheme.inconclusiveGray,
                       fontSize: 13,
@@ -129,25 +137,25 @@ class _ScanReportViewState extends State<ScanReportView> {
               return isNarrow
                   ? Column(
                       children: [
-                        _buildVideoPlayerAndTimelineCard(),
+                        _buildVideoPlayerAndTimelineCard(targetFilename),
                         const SizedBox(height: 24),
-                        _buildAuthenticityAnalysisCard(),
+                        _buildAuthenticityAnalysisCard(manipProb, aiGenPct, deepfakePct, verdictDesc),
                         const SizedBox(height: 24),
-                        _buildFileMetadataCard(),
+                        _buildFileMetadataCard(cameraModel),
                       ],
                     )
                   : Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(flex: 3, child: _buildVideoPlayerAndTimelineCard()),
+                        Expanded(flex: 3, child: _buildVideoPlayerAndTimelineCard(targetFilename)),
                         const SizedBox(width: 24),
                         Expanded(
                           flex: 2,
                           child: Column(
                             children: [
-                              _buildAuthenticityAnalysisCard(),
+                              _buildAuthenticityAnalysisCard(manipProb, aiGenPct, deepfakePct, verdictDesc),
                               const SizedBox(height: 24),
-                              _buildFileMetadataCard(),
+                              _buildFileMetadataCard(cameraModel),
                             ],
                           ),
                         ),
@@ -161,7 +169,8 @@ class _ScanReportViewState extends State<ScanReportView> {
   }
 
   // Left Video Player & Event Timeline Card (Image 1 Mockup)
-  Widget _buildVideoPlayerAndTimelineCard() {
+  Widget _buildVideoPlayerAndTimelineCard(String filename) {
+    final extTag = filename.contains('.') ? ".${filename.split('.').last.toUpperCase()}" : ".MP4";
     return Column(
       children: [
         // Video Box Container
@@ -179,7 +188,7 @@ class _ScanReportViewState extends State<ScanReportView> {
                 padding: const EdgeInsets.all(12.0),
                 child: Row(
                   children: [
-                    _buildTagPill(".MP4"),
+                    _buildTagPill(extTag),
                     const SizedBox(width: 6),
                     _buildTagPill("1080p"),
                     const SizedBox(width: 6),
@@ -361,7 +370,7 @@ class _ScanReportViewState extends State<ScanReportView> {
   }
 
   // Right Column Card 1: Authenticity Analysis (Image 1 Mockup)
-  Widget _buildAuthenticityAnalysisCard() {
+  Widget _buildAuthenticityAnalysisCard(double manipProb, double aiGenPct, double deepfakePct, String verdictDesc) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -383,18 +392,20 @@ class _ScanReportViewState extends State<ScanReportView> {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    const SizedBox(
+                    SizedBox(
                       width: 70,
                       height: 70,
                       child: CircularProgressIndicator(
-                        value: 0.82,
+                        value: manipProb / 100.0,
                         strokeWidth: 6,
-                        backgroundColor: Color(0xFF192A24),
-                        valueColor: AlwaysStoppedAnimation<Color>(AppTheme.manipulatedRed),
+                        backgroundColor: const Color(0xFF192A24),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          manipProb > 50.0 ? AppTheme.manipulatedRed : AppTheme.neonMint,
+                        ),
                         strokeCap: StrokeCap.round,
                       ),
                     ),
-                    Text("82%", style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text("${manipProb.toInt()}%", style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -405,7 +416,7 @@ class _ScanReportViewState extends State<ScanReportView> {
                   children: [
                     Text("Manipulation Prob.", style: GoogleFonts.inter(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
-                    Text("High confidence of alteration", style: GoogleFonts.inter(color: AppTheme.inconclusiveGray, fontSize: 12)),
+                    Text(verdictDesc, style: GoogleFonts.inter(color: AppTheme.inconclusiveGray, fontSize: 12)),
                   ],
                 ),
               ),
@@ -413,7 +424,7 @@ class _ScanReportViewState extends State<ScanReportView> {
           ),
           const SizedBox(height: 24),
 
-          // 2 Progress Bars (AI Gen 64% | Deepfake 91%)
+          // 2 Progress Bars (AI Gen & Deepfake/Tampering)
           Row(
             children: [
               Expanded(
@@ -427,11 +438,11 @@ class _ScanReportViewState extends State<ScanReportView> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text("AI Gen", style: GoogleFonts.inter(color: AppTheme.inconclusiveGray, fontSize: 11)),
-                          Text("64%", style: GoogleFonts.inter(color: Colors.orangeAccent, fontSize: 13, fontWeight: FontWeight.bold)),
+                          Text("${aiGenPct.toInt()}%", style: GoogleFonts.inter(color: Colors.orangeAccent, fontSize: 13, fontWeight: FontWeight.bold)),
                         ],
                       ),
                       const SizedBox(height: 8),
-                      LinearProgressIndicator(value: 0.64, backgroundColor: Colors.white12, color: Colors.orangeAccent, minHeight: 4),
+                      LinearProgressIndicator(value: aiGenPct / 100.0, backgroundColor: Colors.white12, color: Colors.orangeAccent, minHeight: 4),
                     ],
                   ),
                 ),
@@ -447,12 +458,12 @@ class _ScanReportViewState extends State<ScanReportView> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text("Deepfake", style: GoogleFonts.inter(color: AppTheme.inconclusiveGray, fontSize: 11)),
-                          Text("91%", style: GoogleFonts.inter(color: AppTheme.manipulatedRed, fontSize: 13, fontWeight: FontWeight.bold)),
+                          Text("Tamper/DF", style: GoogleFonts.inter(color: AppTheme.inconclusiveGray, fontSize: 11)),
+                          Text("${deepfakePct.toInt()}%", style: GoogleFonts.inter(color: AppTheme.manipulatedRed, fontSize: 13, fontWeight: FontWeight.bold)),
                         ],
                       ),
                       const SizedBox(height: 8),
-                      LinearProgressIndicator(value: 0.91, backgroundColor: Colors.white12, color: AppTheme.manipulatedRed, minHeight: 4),
+                      LinearProgressIndicator(value: deepfakePct / 100.0, backgroundColor: Colors.white12, color: AppTheme.manipulatedRed, minHeight: 4),
                     ],
                   ),
                 ),
@@ -465,7 +476,7 @@ class _ScanReportViewState extends State<ScanReportView> {
   }
 
   // Right Column Card 2: File Metadata (Image 1 Mockup)
-  Widget _buildFileMetadataCard() {
+  Widget _buildFileMetadataCard(String cameraModel) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -484,9 +495,9 @@ class _ScanReportViewState extends State<ScanReportView> {
           Text("e3b0c44298fc1c149afbf4c8996fb924...", style: GoogleFonts.firaCode(color: Colors.white, fontSize: 12)),
           const Divider(color: AppTheme.cardBorder, height: 24),
 
-          Text("CODEC INFO", style: GoogleFonts.inter(color: AppTheme.inconclusiveGray, fontSize: 11, fontWeight: FontWeight.bold)),
+          Text("CAMERA / CODEC INFO", style: GoogleFonts.inter(color: AppTheme.inconclusiveGray, fontSize: 11, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          Text("H.264 (High Profile) / AAC", style: GoogleFonts.inter(color: Colors.white, fontSize: 13)),
+          Text(cameraModel, style: GoogleFonts.inter(color: Colors.white, fontSize: 13)),
           const Divider(color: AppTheme.cardBorder, height: 24),
 
           Text("FRAME RATE", style: GoogleFonts.inter(color: AppTheme.inconclusiveGray, fontSize: 11, fontWeight: FontWeight.bold)),
