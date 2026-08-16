@@ -1,0 +1,160 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid",
+        "followers": {
+          ".write": "auth != null"
+        }
+      }
+    },
+    "presence": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    "private_info": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    "creator_profiles": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    "payments": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    "creator_notifications": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null"
+      }
+    },
+    "user_followers": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+    "user_following": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+
+    "chats": {
+      "$chatId": {
+        ".read": "auth != null && data.child('participants').child(auth.uid).exists()",
+        ".write": "auth != null && (!data.exists() || data.child('participants').child(auth.uid).exists())",
+        ".validate": "newData.hasChildren(['participants', 'lastMessage', 'lastSenderId', 'lastMessageAt', 'unreadCount', 'createdAt'])",
+
+        "participants": {
+          ".validate": "newData.hasChildren()"
+        },
+        "lastMessage": {
+          ".validate": "newData.isString() && newData.val().length <= 2000"
+        },
+        "lastSenderId": {
+          ".validate": "newData.isString()"
+        },
+        "lastMessageAt": {
+          ".validate": "newData.val() === now || newData.isNumber()"
+        },
+        "createdAt": {
+          ".validate": "newData.val() === now || newData.isNumber()"
+        },
+
+        "unreadCount": {
+          "$uid": {
+            ".write": "auth != null && root.child('chats').child($chatId).child('participants').child(auth.uid).exists() && ((auth.uid === $uid && newData.val() === 0) || (auth.uid !== $uid && newData.val() === (data.exists() ? data.val() : 0) + 1))",
+            ".validate": "newData.isNumber()"
+          }
+        }
+      }
+    },
+
+    "messages": {
+      "$chatId": {
+        ".read": "auth != null && root.child('chats').child($chatId).child('participants').child(auth.uid).exists()",
+
+        "$messageId": {
+          ".write": "auth != null && root.child('chats').child($chatId).child('participants').child(auth.uid).exists() && !data.exists()",
+          ".validate": "newData.hasChildren(['senderId', 'text', 'type', 'sentAt', 'status']) && newData.child('senderId').val() === auth.uid && newData.child('status').val() === 'sent'",
+
+          "senderId": {
+            ".validate": "newData.isString()"
+          },
+          "text": {
+            ".validate": "newData.isString() && newData.val().length <= 4000"
+          },
+          "type": {
+            ".validate": "newData.val() === 'text' || newData.val() === 'image' || newData.val() === 'rate_card' || newData.val() === 'system' || newData.val() === 'document' || newData.val() === 'voice'"
+          },
+          "sentAt": {
+            ".validate": "newData.val() === now"
+          },
+
+          "status": {
+            ".write": "auth != null && root.child('chats').child($chatId).child('participants').child(auth.uid).exists() && data.parent().child('senderId').val() !== auth.uid && ((data.val() === 'sent' && (newData.val() === 'delivered' || newData.val() === 'read')) || (data.val() === 'delivered' && newData.val() === 'read'))",
+            ".validate": "newData.isString()"
+          }
+        }
+      }
+    },
+
+    "user-chats": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$chatId": {
+          ".write": "auth != null && newData.val() === true && !data.exists() && root.child('chats').child($chatId).child('participants').child(auth.uid).exists() && root.child('chats').child($chatId).child('participants').child($uid).exists()",
+          ".validate": "newData.isBoolean()"
+        }
+      }
+    },
+
+    "profile_views": {
+      "$creatorId": {
+        ".read": "auth != null && auth.uid === $creatorId",
+        "$viewId": {
+          ".write": "auth != null && !data.exists() && newData.child('viewerUid').val() === auth.uid && auth.uid !== $creatorId",
+          ".validate": "newData.hasChildren(['viewerUid', 'targeted', 'timestamp'])"
+        }
+      }
+    },
+
+    "ad_accounts": {
+      "$creatorId": {
+        ".read": "auth != null && auth.uid === $creatorId",
+        ".write": false
+      }
+    },
+
+    "post_likes": {
+      "$postId": {
+        ".read": "auth != null",
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    "post_comments": {
+      "$postId": {
+        ".read": "auth != null",
+        "$commentId": {
+          ".write": "auth != null && !data.exists() && newData.child('uid').val() === auth.uid",
+          ".validate": "newData.hasChildren(['uid', 'user_name', 'text', 'timestamp'])"
+        }
+      }
+    }
+  }
+}

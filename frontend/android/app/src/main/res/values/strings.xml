@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Add this line below -->
+    <string name="app_name">Look Book</string>
+    
+    <!-- Your existing Facebook config -->
+    <string name="facebook_app_id">941450175633534</string>
+    <string name="fb_login_protocol_scheme">fb941450175633534</string>
+    <string name="facebook_client_token">6634c9891d26e4f4ad34e5627cef59c5</string>
+</resources>

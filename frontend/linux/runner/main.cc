@@ -1,0 +1,6 @@
+#include "look_booklication.h"
+
+int main(int argc, char** argv) {
+  g_autoptr(MyApplication) app = look_booklication_new();
+  return g_application_run(G_APPLICATION(app), argc, argv);
+}

@@ -1,0 +1,6 @@
+{
+  "_comment": "Apply once via index.setSettings() or the Algolia dashboard.",
+  "searchableAttributes": ["full_name", "bio", "city", "skills"],
+  "attributesForFaceting": ["city", "skills", "is_sponsored"],
+  "customRanking": ["desc(is_sponsored)", "desc(followers)"]
+}
