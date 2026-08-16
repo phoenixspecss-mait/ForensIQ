@@ -235,6 +235,8 @@ class _ScanReportViewState extends State<ScanReportView> {
     final cameraModel = _reportData?['camera_model'] ?? "Standard Camera / Sensor";
     final verdictDesc = _reportData?['verdict_description'] ?? "Authenticity verified";
 
+    final isManipulated = manipProb > 40.0 || (_reportData?['verdict_raw'] ?? "").toString().toUpperCase().contains("MANIPULATED");
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -294,7 +296,7 @@ class _ScanReportViewState extends State<ScanReportView> {
               return isNarrow
                   ? Column(
                       children: [
-                        _buildVideoPlayerAndTimelineCard(targetFilename),
+                        _buildVideoPlayerAndTimelineCard(targetFilename, isManipulated),
                         const SizedBox(height: 24),
                         _buildAuthenticityAnalysisCard(manipProb, aiGenPct, deepfakePct, verdictDesc),
                         const SizedBox(height: 24),
@@ -304,7 +306,7 @@ class _ScanReportViewState extends State<ScanReportView> {
                   : Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(flex: 3, child: _buildVideoPlayerAndTimelineCard(targetFilename)),
+                        Expanded(flex: 3, child: _buildVideoPlayerAndTimelineCard(targetFilename, isManipulated)),
                         const SizedBox(width: 24),
                         Expanded(
                           flex: 2,
@@ -326,8 +328,11 @@ class _ScanReportViewState extends State<ScanReportView> {
   }
 
   // Left Video Player & Event Timeline Card (Image 1 Mockup)
-  Widget _buildVideoPlayerAndTimelineCard(String filename) {
+  Widget _buildVideoPlayerAndTimelineCard(String filename, bool isManipulated) {
     final extTag = filename.contains('.') ? ".${filename.split('.').last.toUpperCase()}" : ".MP4";
+    final badgeColor = isManipulated ? AppTheme.manipulatedRed : AppTheme.neonMint;
+    final badgeText = isManipulated ? "Manipulated" : "Authentic";
+
     return Column(
       children: [
         // Video Box Container
@@ -340,7 +345,7 @@ class _ScanReportViewState extends State<ScanReportView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top Tags Bar (.MP4 | 1080p | Manipulated)
+              // Top Tags Bar (.MP4 | 1080p | Manipulated / Authentic)
               Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Row(
@@ -352,14 +357,14 @@ class _ScanReportViewState extends State<ScanReportView> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: AppTheme.manipulatedRed.withValues(alpha: 0.2),
+                        color: badgeColor.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Row(
                         children: [
-                          const CircleAvatar(radius: 3, backgroundColor: AppTheme.manipulatedRed),
+                          CircleAvatar(radius: 3, backgroundColor: badgeColor),
                           const SizedBox(width: 4),
-                          Text("Manipulated", style: GoogleFonts.inter(color: AppTheme.manipulatedRed, fontSize: 11, fontWeight: FontWeight.bold)),
+                          Text(badgeText, style: GoogleFonts.inter(color: badgeColor, fontSize: 11, fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),
