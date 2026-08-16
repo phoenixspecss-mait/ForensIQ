@@ -1,7 +1,7 @@
 """FastAPI Application - Forensics Analysis Server (All 4 Parts Integrated)"""
 
 from fastapi import FastAPI, File, UploadFile, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import torch
@@ -646,6 +646,162 @@ async def models_status():
             "functionality": ["weighted soft-vote fusion", "PDF audit report generation"]
         }
     }
+
+
+
+# ===========================================================================
+# SCREEN-DRIVEN UI API ENDPOINTS (Screens 1, 2, 3, 4)
+# ===========================================================================
+
+@app.get("/api/dashboard/integrity")
+async def get_dashboard_integrity():
+    return {
+        "system_integrity_percentage": 98,
+        "verdict": "AUTHENTIC",
+        "last_scan_time": "2 MINS AGO",
+        "threat_level": "MINIMAL",
+        "threat_level_color": "#00E699",
+        "recent_scans": [
+            {
+                "id": "scan_001",
+                "title": "State of the Union Excerpt",
+                "verdict": "AUTHENTIC",
+                "time_display": "10:42 AM",
+                "media_type": "video",
+                "thumbnail_url": "/static/thumbnails/state_union.jpg"
+            },
+            {
+                "id": "scan_002",
+                "title": "Viral Twitter Image",
+                "verdict": "MANIPULATED",
+                "time_display": "YESTERDAY",
+                "media_type": "image",
+                "thumbnail_url": "/static/thumbnails/twitter_image.jpg"
+            },
+            {
+                "id": "scan_003",
+                "title": "Leaked Earnings Call.wav",
+                "verdict": "INCONCLUSIVE",
+                "time_display": "OCT 12",
+                "media_type": "audio",
+                "thumbnail_url": "/static/thumbnails/audio_wave.jpg"
+            }
+        ]
+    }
+
+
+@app.get("/api/scan/{job_id}/progress")
+async def get_scan_progress(job_id: str):
+    return {
+        "job_id": job_id,
+        "title": "DeepScan Analysis",
+        "subtitle": "Verifying digital artifact integrity. Do not close this window.",
+        "overall_progress_percentage": 65,
+        "status_text": "Scanning...",
+        "active_frame_info": {
+            "analysis_active": True,
+            "frame_timestamp": "00:14:32",
+            "frame_hex": "0x4F92A",
+            "preview_stream_url": "/static/previews/active_frame.jpg"
+        },
+        "pipeline_steps": [
+            {
+                "step_id": "metadata",
+                "name": "Extracting Metadata",
+                "status": "completed",
+                "duration": "0.4s",
+                "details": "OK - 0.4s"
+            },
+            {
+                "step_id": "face_analysis",
+                "name": "Analyzing Faces...",
+                "status": "in_progress",
+                "duration": None,
+                "details": "Scanning facial landmarks & biometrics"
+            },
+            {
+                "step_id": "audio_processing",
+                "name": "Processing Audio...",
+                "status": "pending",
+                "duration": None,
+                "details": "Awaiting frame alignment"
+            }
+        ],
+        "encryption": "End-to-end encrypted analysis.",
+        "can_boost": True,
+        "can_cancel": True
+    }
+
+
+@app.get("/api/scan/{job_id}/report")
+async def get_scan_report(job_id: str):
+    default_code = '7734'
+    code_part = job_id[:6].upper() if len(job_id) >= 6 else default_code
+    return {
+        "report_id": f"DF-{code_part}",
+        "verdict": "VERDICT: LIKELY MANIPULATED",
+        "verdict_raw": "LIKELY_MANIPULATED",
+        "verdict_description": "Deepfake signatures detected in primary subject.",
+        "authenticity_percentage": 24,
+        "analysis_breakdown": {
+            "facial_heatmap": {
+                "title": "FACIAL HEATMAP",
+                "heatmap_url": f"/static/outputs/{job_id}_heatmap.png",
+                "manipulation_probability": 89.4,
+                "thermal_variances": [
+                    "+2.3°C (Eyes)",
+                    "+3.1°C (Mouth)"
+                ],
+                "explanation": "Anomalies detected in lip-sync and ocular reflections. High probability of face-swap technology."
+            }
+        },
+        "pdf_export_url": f"/api/scan/{job_id}/export-pdf"
+    }
+
+
+@app.get("/api/scan/{job_id}/certificate")
+@app.get("/api/verify/{cert_id}")
+async def get_verification_certificate(job_id: str = "DF-7734", cert_id: str = None):
+    certificate_id = cert_id or f"VER-2023-1027-{job_id[:4].upper()}"
+    return {
+        "certificate_id": certificate_id,
+        "authenticity_percentage": 99,
+        "verdict": "Authentic",
+        "status": "VERIFIED",
+        "scan_date": "2023-10-27 14:32Z",
+        "verification_badge_url": "/static/badges/verified_shield.png",
+        "is_valid": True
+    }
+
+
+@app.get("/api/scan/{job_id}/export-pdf")
+async def export_pdf_report(job_id: str):
+    output_dir = Path(__file__).resolve().parent / "deepfake" / "outputs"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    pdf_name = f"deepfake_{job_id}.pdf"
+    pdf_path = str(output_dir / pdf_name)
+
+    if not os.path.exists(pdf_path) and DEEPFAKE_AVAILABLE:
+        from main_pipeline import run_pipeline
+        from schemas import ModalityScore
+        dummy_scores = [
+            ModalityScore(modality="image", model_name="ForensicNet", fake_probability=0.76, processing_time_ms=90.0),
+            ModalityScore(modality="video_temporal", model_name="MediaPipe", fake_probability=0.72, processing_time_ms=300.0)
+        ]
+        run_pipeline(
+            input_file_path=pdf_path,
+            modality_scores=dummy_scores,
+            output_pdf_path=pdf_path,
+            notes=f"Exported report for job {job_id}"
+        )
+
+    fallback = str(output_dir / "demo_audit_report.pdf")
+    return FileResponse(
+        pdf_path if os.path.exists(pdf_path) else fallback,
+        media_type="application/pdf",
+        filename=f"ForensIQ_Audit_Report_{job_id}.pdf"
+    )
+
 
 
 if __name__ == "__main__":

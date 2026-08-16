@@ -82,3 +82,80 @@ class AuditReport(BaseModel):
     fusion_result: FusionResult
     gradcam_overlays: list[GradCamOverlay] = []
     notes: Optional[str] = None
+
+
+# -------------------------------------------------------------
+# Screen-Driven API Response Schemas
+# -------------------------------------------------------------
+
+class RecentScanItem(BaseModel):
+    id: str
+    title: str
+    verdict: Literal["AUTHENTIC", "MANIPULATED", "INCONCLUSIVE"]
+    time_display: str
+    media_type: Literal["image", "video", "audio"]
+    thumbnail_url: Optional[str] = None
+
+
+class DashboardIntegrityResponse(BaseModel):
+    system_integrity_percentage: int = Field(98, ge=0, le=100)
+    verdict: str = "AUTHENTIC"
+    last_scan_time: str = "2 MINS AGO"
+    threat_level: str = "MINIMAL"
+    recent_scans: list[RecentScanItem]
+
+
+class ActiveFrameInfo(BaseModel):
+    analysis_active: bool = True
+    frame_timestamp: str = "00:14:32"
+    frame_hex: str = "0x4F92A"
+    preview_stream_url: Optional[str] = None
+
+
+class PipelineStepStatus(BaseModel):
+    step_id: str
+    name: str
+    status: Literal["completed", "in_progress", "pending"]
+    duration: Optional[str] = None
+    details: Optional[str] = None
+
+
+class ScanProgressResponse(BaseModel):
+    job_id: str
+    title: str = "DeepScan Analysis"
+    subtitle: str = "Verifying digital artifact integrity. Do not close this window."
+    overall_progress_percentage: int = Field(..., ge=0, le=100)
+    status_text: str = "Scanning..."
+    active_frame_info: ActiveFrameInfo
+    pipeline_steps: list[PipelineStepStatus]
+    encryption: str = "End-to-end encrypted analysis."
+    can_boost: bool = True
+    can_cancel: bool = True
+
+
+class FacialHeatmapBreakdown(BaseModel):
+    title: str = "FACIAL HEATMAP"
+    heatmap_url: str
+    manipulation_probability: float
+    thermal_variances: list[str] = []
+    explanation: str
+
+
+class ScanReportResponse(BaseModel):
+    report_id: str
+    verdict: str
+    verdict_raw: str
+    verdict_description: str
+    authenticity_percentage: int
+    analysis_breakdown: dict
+    pdf_export_url: str
+
+
+class VerificationCertificateResponse(BaseModel):
+    certificate_id: str
+    authenticity_percentage: int
+    verdict: str = "Authentic"
+    status: str = "VERIFIED"
+    scan_date: str
+    verification_badge_url: Optional[str] = None
+    is_valid: bool = True

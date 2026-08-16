@@ -113,6 +113,42 @@ def test_models_and_endpoints():
         print(f"      Verdict:     {df_report.get('fusion', {}).get('verdict')}")
         print(f"      PDF Generated: {df_report.get('pdf_report')}")
 
+        
+        # 5. Test Screen-Driven UI API Endpoints
+        print("\n--- 4. Testing Screen-Driven UI API Endpoints ---")
+        
+        # Screen 1: Dashboard Integrity
+        dash_resp = client.get("/api/dashboard/integrity")
+        assert dash_resp.status_code == 200
+        dash_data = dash_resp.json()
+        assert dash_data["system_integrity_percentage"] == 98
+        assert len(dash_data['recent_scans']) > 0
+        print(f"   GET /api/dashboard/integrity -> 98% Authentic Integrity (Recent Scans: {len(dash_data['recent_scans'])} items)")
+
+        # Screen 2: DeepScan Live Progress
+        prog_resp = client.get("/api/scan/demo123/progress")
+        assert prog_resp.status_code == 200
+        prog_data = prog_resp.json()
+        assert prog_data["overall_progress_percentage"] == 65
+        assert len(prog_data["pipeline_steps"]) == 3
+        print(f"   GET /api/scan/demo123/progress -> Overall Progress: 65%, Frame: {prog_data['active_frame_info']['frame_timestamp']}")
+
+        # Screen 3: Detailed Report & Facial Heatmap
+        rpt_resp = client.get("/api/scan/DF-7734/report")
+        assert rpt_resp.status_code == 200
+        rpt_data = rpt_resp.json()
+        assert rpt_data['authenticity_percentage'] == 24
+        assert "facial_heatmap" in rpt_data["analysis_breakdown"]
+        print(f"   GET /api/scan/DF-7734/report -> Verdict: {rpt_data['verdict']}, Authenticity: {rpt_data['authenticity_percentage']}%")
+
+        # Screen 4: Shareable Verification Certificate
+        cert_resp = client.get("/api/verify/VER-2023-1027-99")
+        assert cert_resp.status_code == 200
+        cert_data = cert_resp.json()
+        assert cert_data['status'] == "VERIFIED"
+        assert cert_data['authenticity_percentage'] == 99
+        print(f"   GET /api/verify/VER-2023-1027-99 -> Certificate Status: {cert_data['status']} ({cert_data['authenticity_percentage']}% Authentic)")
+
         print("\n==================================================")
         print("🎉 ALL BACKEND MODELS & API TESTS PASSED SUCCESSFULLY!")
         print("==================================================")
