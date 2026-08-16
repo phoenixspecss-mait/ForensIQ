@@ -1,6 +1,6 @@
-import 'package:expert_ai/services/database/firebase_database_provider.dart';
-import 'package:expert_ai/services/database/database_history_item.dart';
-import 'package:expert_ai/services/database/database_provider.dart';
+import 'package:forensiq/services/database/firebase_database_provider.dart';
+import 'package:forensiq/services/database/database_history_item.dart';
+import 'package:forensiq/services/database/database_provider.dart';
 
 class DatabaseService implements DatabaseProvider {
   final DatabaseProvider provider;

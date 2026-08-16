@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:expert_ai/services/api_service.dart';
-import 'package:expert_ai/theme/app_theme.dart';
+import 'package:forensiq/services/api_service.dart';
+import 'package:forensiq/theme/app_theme.dart';
 
 class AccountView extends StatefulWidget {
   const AccountView({super.key});

@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:expert_ai/services/auth/auth_provider.dart';
-import 'package:expert_ai/services/auth/auth_exceptions.dart';
-import 'package:expert_ai/services/auth/auth_user.dart';
-import 'package:expert_ai/firebase_options.dart';
+import 'package:forensiq/services/auth/auth_provider.dart';
+import 'package:forensiq/services/auth/auth_exceptions.dart';
+import 'package:forensiq/services/auth/auth_user.dart';
+import 'package:forensiq/firebase_options.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart'

@@ -2,10 +2,10 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:expert_ai/services/auth/auth_exceptions.dart';
-import 'package:expert_ai/services/auth/auth_service.dart';
-import 'package:expert_ai/theme/app_theme.dart';
-import 'package:expert_ai/views/forgot_password_view.dart';
+import 'package:forensiq/services/auth/auth_exceptions.dart';
+import 'package:forensiq/services/auth/auth_service.dart';
+import 'package:forensiq/theme/app_theme.dart';
+import 'package:forensiq/views/forgot_password_view.dart';
 
 // ── MAIN AUTHENTICATION SCREEN VIEW ───────────────────────────────
 class RegisterLoginView extends StatefulWidget {
@@ -121,7 +121,7 @@ class _RegisterLoginViewState extends State<RegisterLoginView> {
         }
         final freshUser = FirebaseAuth.instance.currentUser;
         if (freshUser != null && freshUser.emailVerified) {
-          _showSnack("Welcome back to Expert AI!", AppTheme.emeraldGreen);
+          _showSnack("Welcome back to ForensIQ!", AppTheme.emeraldGreen);
           if (mounted) {
             Navigator.of(context).pushNamedAndRemoveUntil('/home/', (_) => false);
           }
@@ -166,7 +166,7 @@ class _RegisterLoginViewState extends State<RegisterLoginView> {
             children: [
               const SizedBox(height: 30),
 
-              // Expert AI Logo Container
+              // ForensIQ Logo Container
               Center(
                 child: Container(
                   width: 84,
@@ -193,10 +193,10 @@ class _RegisterLoginViewState extends State<RegisterLoginView> {
 
               const SizedBox(height: 20),
 
-              // App Name: Expert AI
+              // App Name: ForensIQ
               Center(
                 child: Text(
-                  'Expert AI',
+                  'ForensIQ',
                   style: GoogleFonts.playfairDisplay(
                     fontSize: 32,
                     fontWeight: FontWeight.w900,
@@ -499,7 +499,7 @@ class _RegisterLoginViewState extends State<RegisterLoginView> {
                       ),
                       const SizedBox(width: 10),
                       const Text(
-                        "Expert AI",
+                        "ForensIQ",
                         style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -572,7 +572,7 @@ class _RegisterLoginViewState extends State<RegisterLoginView> {
                         ),
                         const SizedBox(height: 16),
                         const Text(
-                          "Expert AI",
+                          "ForensIQ",
                           style: TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 6),
@@ -678,7 +678,7 @@ class _RegisterLoginViewState extends State<RegisterLoginView> {
               ),
               child: Row(
                 children: [
-                  const Text("© 2026 Expert AI. All rights reserved. Verified Agents & Micro-payment Marketplace.", style: TextStyle(color: Color(0xFF6B7280), fontSize: 12)),
+                  const Text("© 2026 ForensIQ. All rights reserved. Verified Agents & Micro-payment Marketplace.", style: TextStyle(color: Color(0xFF6B7280), fontSize: 12)),
                   const Spacer(),
                   Wrap(
                     spacing: 20,
@@ -769,7 +769,7 @@ class _VerifyEmailViewState extends State<VerifyEmailView> with WidgetsBindingOb
             ),
             const SizedBox(height: 12),
             Text(
-              "We've sent a verification email to your address. Please click the link inside to activate your Expert AI account.",
+              "We've sent a verification email to your address. Please click the link inside to activate your ForensIQ account.",
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(color: const Color(0xFF9CA3AF), fontSize: 14),
             ),

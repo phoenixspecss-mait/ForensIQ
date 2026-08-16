@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:expert_ai/services/database/database_history_item.dart';
-import 'package:expert_ai/services/database/database_provider.dart';
+import 'package:forensiq/services/database/database_history_item.dart';
+import 'package:forensiq/services/database/database_provider.dart';
 
 class AppDatabaseProvider implements DatabaseProvider {
   static const String _prefKeyHistory = "user_activity_history_v2";

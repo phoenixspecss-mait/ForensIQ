@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
-import 'package:expert_ai/services/database/app_database_provider.dart';
-import 'package:expert_ai/services/database/database_history_item.dart';
-import 'package:expert_ai/services/database/database_provider.dart';
+import 'package:forensiq/services/database/app_database_provider.dart';
+import 'package:forensiq/services/database/database_history_item.dart';
+import 'package:forensiq/services/database/database_provider.dart';
 
 class FirebaseDatabaseProvider implements DatabaseProvider {
   final FirebaseDatabase _db = FirebaseDatabase.instance;

@@ -1,5 +1,5 @@
-import 'package:expert_ai/services/auth/auth_exceptions.dart';
-import 'package:expert_ai/services/auth/auth_user.dart';
+import 'package:forensiq/services/auth/auth_exceptions.dart';
+import 'package:forensiq/services/auth/auth_user.dart';
 
 abstract class AuthProvider {
   AuthUser? get currentUser;

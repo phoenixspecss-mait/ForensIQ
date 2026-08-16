@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:expert_ai/views/register_login_view.dart';
+import 'package:forensiq/views/register_login_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WelcomeSlider extends StatefulWidget {

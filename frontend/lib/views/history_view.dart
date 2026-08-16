@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:expert_ai/services/api_service.dart';
-import 'package:expert_ai/theme/app_theme.dart';
+import 'package:forensiq/services/api_service.dart';
+import 'package:forensiq/theme/app_theme.dart';
 
 class HistoryView extends StatefulWidget {
   final Function(String jobId, String verdict) onViewScanDetails;

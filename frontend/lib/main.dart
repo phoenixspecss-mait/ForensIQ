@@ -3,11 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:expert_ai/services/auth/auth_service.dart';
-import 'package:expert_ai/theme/app_theme.dart';
-import 'package:expert_ai/views/register_login_view.dart';
-import 'package:expert_ai/views/app_shell.dart';
-import 'package:expert_ai/views/onboarding/welcome_slider.dart';
+import 'package:forensiq/services/auth/auth_service.dart';
+import 'package:forensiq/theme/app_theme.dart';
+import 'package:forensiq/views/register_login_view.dart';
+import 'package:forensiq/views/app_shell.dart';
+import 'package:forensiq/views/onboarding/welcome_slider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 

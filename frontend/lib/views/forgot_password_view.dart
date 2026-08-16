@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:expert_ai/services/auth/auth_service.dart';
-import 'package:expert_ai/services/auth/auth_exceptions.dart';
-import 'package:expert_ai/theme/app_theme.dart';
+import 'package:forensiq/services/auth/auth_service.dart';
+import 'package:forensiq/services/auth/auth_exceptions.dart';
+import 'package:forensiq/theme/app_theme.dart';
 
 class ForgotPasswordView extends StatefulWidget {
   const ForgotPasswordView({super.key});

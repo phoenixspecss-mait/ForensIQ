@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:expert_ai/services/api_service.dart';
-import 'package:expert_ai/theme/app_theme.dart';
-import 'package:expert_ai/views/account_view.dart';
-import 'package:expert_ai/views/certificate_view.dart';
-import 'package:expert_ai/views/dashboard_view.dart';
-import 'package:expert_ai/views/deepscan_progress_view.dart';
-import 'package:expert_ai/views/history_view.dart';
-import 'package:expert_ai/views/scan_report_view.dart';
+import 'package:forensiq/services/api_service.dart';
+import 'package:forensiq/theme/app_theme.dart';
+import 'package:forensiq/views/account_view.dart';
+import 'package:forensiq/views/certificate_view.dart';
+import 'package:forensiq/views/dashboard_view.dart';
+import 'package:forensiq/views/deepscan_progress_view.dart';
+import 'package:forensiq/views/history_view.dart';
+import 'package:forensiq/views/scan_report_view.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
