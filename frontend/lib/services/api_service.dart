@@ -165,6 +165,26 @@ class ApiService {
   }
 
   // Gateway Upload and Full Analysis Workflow
+  static Future<Map<String, dynamic>> uploadBytesForGateway(List<int> bytes, String fileName) async {
+    try {
+      final uri = Uri.parse("$baseUrl/gateway/upload");
+      final request = http.MultipartRequest('POST', uri)
+        ..files.add(http.MultipartFile.fromBytes('file', bytes, filename: fileName));
+
+      final streamed = await request.send().timeout(const Duration(seconds: 30));
+      final body = await streamed.stream.bytesToString();
+      final data = jsonDecode(body);
+
+      if (streamed.statusCode == 200) {
+        return {"success": true, "data": data};
+      }
+      return {"success": false, "message": data['detail'] ?? 'Upload failed'};
+    } catch (e) {
+      debugPrint('uploadBytesForGateway error: $e');
+      return {"success": false, "message": 'Could not connect to backend server'};
+    }
+  }
+
   static Future<Map<String, dynamic>> uploadFileForGateway(String filePath, String fileName) async {
     try {
       final uri = Uri.parse("$baseUrl/gateway/upload");

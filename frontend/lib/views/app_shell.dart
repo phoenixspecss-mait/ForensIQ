@@ -50,9 +50,12 @@ class _AppShellState extends State<AppShell> {
         });
 
         // Async upload and backend analysis trigger
-        ApiService.uploadFileForGateway(file.path, file.name).then((res) {
+        ApiService.uploadBytesForGateway(bytes, file.name).then((res) {
           if (res['success'] == true && res['data'] != null) {
             final serverJobId = res['data']['job_id'] ?? jobId;
+            setState(() {
+              _activeJobId = serverJobId;
+            });
             ApiService.triggerGatewayAnalyze(
               serverJobId,
               fileType: file.name.toLowerCase().endsWith('.mp4') ? 'video' : 'image',
