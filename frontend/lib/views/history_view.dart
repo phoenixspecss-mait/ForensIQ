@@ -1,6 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:forensiq/services/api_service.dart';
+import 'package:forensiq/services/database/firebase_database_provider.dart';
 import 'package:forensiq/theme/app_theme.dart';
 
 class HistoryView extends StatefulWidget {
@@ -16,53 +17,9 @@ class _HistoryViewState extends State<HistoryView> {
   String _activeFilter = "All";
   int _currentPage = 1;
   bool _isLoading = true;
+  final FirebaseDatabaseProvider _db = FirebaseDatabaseProvider();
 
-  List<Map<String, dynamic>> _allHistory = [
-    {
-      "id": "scan_001",
-      "filename": "evidence_a_001.jpg",
-      "type": ".JPG",
-      "result": "Authentic",
-      "confidence": "99.8%",
-      "date": "Oct 24, 2023 14:32",
-      "color": AppTheme.neonMint,
-      "category": "Images",
-      "icon": Icons.image_outlined,
-    },
-    {
-      "id": "scan_002",
-      "filename": "interview_clip_v2.mp4",
-      "type": ".MP4",
-      "result": "Manipulated",
-      "confidence": "94.2%",
-      "date": "Oct 24, 2023 11:15",
-      "color": AppTheme.manipulatedRed,
-      "category": "Videos",
-      "icon": Icons.video_camera_back_outlined,
-    },
-    {
-      "id": "scan_003",
-      "filename": "wiretap_excerpt_04.wav",
-      "type": ".WAV",
-      "result": "Unverifiable",
-      "confidence": "45.0%",
-      "date": "Oct 23, 2023 09:45",
-      "color": Colors.orangeAccent,
-      "category": "Audio",
-      "icon": Icons.insert_drive_file_outlined,
-    },
-    {
-      "id": "scan_004",
-      "filename": "drone_survey_north.png",
-      "type": ".PNG",
-      "result": "Authentic",
-      "confidence": "98.1%",
-      "date": "Oct 22, 2023 16:20",
-      "color": AppTheme.neonMint,
-      "category": "Images",
-      "icon": Icons.image_outlined,
-    },
-  ];
+  List<Map<String, dynamic>> _allHistory = [];
 
   @override
   void initState() {
@@ -72,42 +29,48 @@ class _HistoryViewState extends State<HistoryView> {
 
   Future<void> _loadLiveHistory() async {
     try {
-      final res = await ApiService.fetchDashboardIntegrity();
-      if (mounted && res['recent_scans'] != null) {
-        final List liveScans = res['recent_scans'];
-        if (liveScans.isNotEmpty) {
-          final List<Map<String, dynamic>> parsed = liveScans.map((s) {
-            final verdict = (s['verdict'] ?? 'AUTHENTIC').toString().toUpperCase();
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final realScans = await _db.fetchUserScans(user.uid);
+        if (mounted && realScans.isNotEmpty) {
+          final List<Map<String, dynamic>> parsed = realScans.map((s) {
+            final verdict = (s['verdict'] ?? s['result'] ?? 'AUTHENTIC').toString().toUpperCase();
             final isAuthentic = verdict.contains('AUTHENTIC');
             final isManipulated = verdict.contains('MANIPULATED');
             final color = isAuthentic
                 ? AppTheme.neonMint
                 : (isManipulated ? AppTheme.manipulatedRed : Colors.orangeAccent);
-            final mediaType = (s['media_type'] ?? 'image').toString().toLowerCase();
+            final filename = s['filename'] ?? s['title'] ?? s['original_filename'] ?? "Media Artifact";
+            final ext = filename.contains('.') ? ".${filename.split('.').last.toUpperCase()}" : ".JPG";
+            final category = ext == ".MP4" || ext == ".MOV" || ext == ".AVI"
+                ? "Videos"
+                : (ext == ".WAV" || ext == ".MP3" ? "Audio" : "Images");
 
             return {
-              "id": s['id'] ?? "scan_${DateTime.now().millisecondsSinceEpoch}",
-              "filename": s['title'] ?? "Artifact Scan",
-              "type": mediaType.contains('video') ? ".MP4" : (mediaType.contains('audio') ? ".WAV" : ".JPG"),
+              "id": s['id'] ?? s['job_id'] ?? "scan_${DateTime.now().millisecondsSinceEpoch}",
+              "filename": filename,
+              "type": ext,
               "result": isAuthentic ? "Authentic" : (isManipulated ? "Manipulated" : "Unverifiable"),
-              "confidence": isAuthentic ? "99.2%" : (isManipulated ? "89.4%" : "45.0%"),
-              "date": s['time_display'] ?? "Today",
+              "confidence": s['confidence'] ?? (isAuthentic ? "99.2%" : (isManipulated ? "89.4%" : "45.0%")),
+              "date": s['date'] ?? s['time_display'] ?? "Today",
               "color": color,
-              "category": mediaType.contains('video') ? "Videos" : (mediaType.contains('audio') ? "Audio" : "Images"),
-              "icon": mediaType.contains('video')
+              "category": category,
+              "icon": category == "Videos"
                   ? Icons.video_camera_back_outlined
-                  : (mediaType.contains('audio') ? Icons.insert_drive_file_outlined : Icons.image_outlined),
+                  : (category == "Audio" ? Icons.insert_drive_file_outlined : Icons.image_outlined),
             };
           }).toList();
 
           setState(() {
-            _allHistory = [...parsed, ..._allHistory];
+            _allHistory = parsed;
             _isLoading = false;
           });
           return;
         }
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint("Live history fetch notice: $e");
+    }
     if (mounted) setState(() => _isLoading = false);
   }
 
@@ -211,9 +174,32 @@ class _HistoryViewState extends State<HistoryView> {
                   ),
                 ),
 
-                // Rows
-                ...filteredList.map((item) {
-                  return InkWell(
+                // Rows or Empty State
+                filteredList.isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.all(48.0),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.manage_search_rounded, color: AppTheme.neonMint, size: 44),
+                              const SizedBox(height: 12),
+                              Text(
+                                "No Scan History Found",
+                                style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                "Upload a media file to record your first forensic scan.",
+                                style: GoogleFonts.inter(color: AppTheme.inconclusiveGray, fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : Column(
+                        children: filteredList.map((item) {
+                          return InkWell(
                     onTap: () => widget.onViewScanDetails(item['id'], item['result']),
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -280,7 +266,8 @@ class _HistoryViewState extends State<HistoryView> {
                       ),
                     ),
                   );
-                }),
+                }).toList(),
+              ),
 
                 // Table Footer Bar
                 Padding(
