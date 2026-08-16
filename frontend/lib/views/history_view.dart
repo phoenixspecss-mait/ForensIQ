@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:forensiq/services/api_service.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:forensiq/theme/app_theme.dart';
 
 class HistoryView extends StatefulWidget {
@@ -12,187 +12,250 @@ class HistoryView extends StatefulWidget {
 }
 
 class _HistoryViewState extends State<HistoryView> {
-  List<Map<String, dynamic>> _scans = [];
-  bool _isLoading = true;
+  final TextEditingController _searchController = TextEditingController();
+  int _currentPage = 1;
+  String _searchQuery = "";
+
+  final List<Map<String, dynamic>> _allHistory = [
+    {
+      "id": "scan_001",
+      "filename": "contract_scan.pdf",
+      "type": "PDF",
+      "result": "AUTHENTIC",
+      "confidence": "99%",
+      "date": "2023-10-27"
+    },
+    {
+      "id": "scan_002",
+      "filename": "interview_edit.mp4",
+      "type": "Video",
+      "result": "MANIPULATED",
+      "confidence": "85%",
+      "date": "2023-10-28"
+    },
+    {
+      "id": "scan_003",
+      "filename": "image_evidence.jpg",
+      "type": "Image",
+      "result": "AUTHENTIC",
+      "confidence": "95%",
+      "date": "2023-10-25"
+    },
+    {
+      "id": "scan_004",
+      "filename": "audio_statement.wav",
+      "type": "Audio",
+      "result": "AUTHENTIC",
+      "confidence": "98%",
+      "date": "2023-10-24"
+    },
+    {
+      "id": "scan_005",
+      "filename": "surveillance_clip.mov",
+      "type": "Video",
+      "result": "MANIPULATED",
+      "confidence": "92%",
+      "date": "2023-10-23"
+    },
+  ];
 
   @override
-  void initState() {
-    super.initState();
-    _loadHistory();
-  }
-
-  Future<void> _loadHistory() async {
-    final data = await ApiService.fetchDashboardIntegrity();
-    if (mounted) {
-      setState(() {
-        _scans = List<Map<String, dynamic>>.from(data['recent_scans'] ?? []);
-        _isLoading = false;
-      });
-    }
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.darkBackground,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    final filteredList = _allHistory.where((item) {
+      final name = item['filename'].toString().toLowerCase();
+      final type = item['type'].toString().toLowerCase();
+      final query = _searchQuery.toLowerCase();
+      return name.contains(query) || type.contains(query);
+    }).toList();
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        children: [
+          // Search & Filter Header (Screen 2 Mockup)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    "Scan History",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.refresh_rounded, color: AppTheme.neonMint),
-                    onPressed: _loadHistory,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                "Audit logs and digital artifact verification records",
-                style: TextStyle(
-                  color: AppTheme.inconclusiveGray,
-                  fontSize: 14,
+              Container(
+                width: 240,
+                height: 40,
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                decoration: BoxDecoration(
+                  color: AppTheme.cardDark,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppTheme.cardBorder),
                 ),
-              ),
-              const SizedBox(height: 20),
-
-              Expanded(
-                child: _isLoading
-                    ? const Center(child: CircularProgressIndicator(color: AppTheme.neonMint))
-                    : _scans.isEmpty
-                        ? const Center(
-                            child: Text(
-                              "No past scans recorded.",
-                              style: TextStyle(color: AppTheme.inconclusiveGray),
-                            ),
-                          )
-                        : ListView.separated(
-                            itemCount: _scans.length,
-                            separatorBuilder: (context, index) => const SizedBox(height: 12),
-                            itemBuilder: (context, index) {
-                              final scan = _scans[index];
-                              final scanVerdict = scan['verdict'] ?? 'AUTHENTIC';
-                              final title = scan['title'] ?? 'Scan Item';
-                              final time = scan['time_display'] ?? '';
-                              final String? assetImg = scan['asset_image'];
-
-                              Color pillBg;
-                              Color pillText;
-                              String pillLabel;
-
-                              if (scanVerdict == 'AUTHENTIC') {
-                                pillBg = AppTheme.neonMint.withValues(alpha: 0.15);
-                                pillText = AppTheme.neonMint;
-                                pillLabel = "• AUTHENTIC";
-                              } else if (scanVerdict == 'MANIPULATED') {
-                                pillBg = AppTheme.manipulatedRed.withValues(alpha: 0.15);
-                                pillText = AppTheme.manipulatedRed;
-                                pillLabel = "• MANIPULATED";
-                              } else {
-                                pillBg = const Color(0xFF1E2C3C);
-                                pillText = AppTheme.inconclusiveGray;
-                                pillLabel = "INCONCLUSIVE";
-                              }
-
-                              return InkWell(
-                                onTap: () => widget.onViewScanDetails(scan['id'] ?? 'scan_001', scanVerdict),
-                                borderRadius: BorderRadius.circular(16),
-                                child: Container(
-                                  padding: const EdgeInsets.all(14),
-                                  decoration: BoxDecoration(
-                                    color: AppTheme.cardDark,
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(color: AppTheme.cardBorder),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        width: 56,
-                                        height: 56,
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF162534),
-                                          borderRadius: BorderRadius.circular(12),
-                                          border: Border.all(color: AppTheme.cardBorder),
-                                          image: assetImg != null
-                                              ? DecorationImage(
-                                                  image: AssetImage(assetImg),
-                                                  fit: BoxFit.cover,
-                                                )
-                                              : null,
-                                        ),
-                                        child: assetImg == null
-                                            ? const Icon(Icons.audio_file_rounded, color: AppTheme.inconclusiveGray, size: 26)
-                                            : null,
-                                      ),
-                                      const SizedBox(width: 14),
-
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              title,
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                            const SizedBox(height: 6),
-                                            Row(
-                                              children: [
-                                                Container(
-                                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                                  decoration: BoxDecoration(
-                                                    color: pillBg,
-                                                    borderRadius: BorderRadius.circular(10),
-                                                  ),
-                                                  child: Text(
-                                                    pillLabel,
-                                                    style: TextStyle(
-                                                      color: pillText,
-                                                      fontSize: 10,
-                                                      fontWeight: FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 10),
-                                                Text(
-                                                  time,
-                                                  style: const TextStyle(
-                                                    color: AppTheme.inconclusiveGray,
-                                                    fontSize: 12,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const Icon(Icons.chevron_right_rounded, color: AppTheme.inconclusiveGray, size: 24),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        style: GoogleFonts.inter(color: Colors.white, fontSize: 13),
+                        onChanged: (val) => setState(() => _searchQuery = val),
+                        decoration: InputDecoration(
+                          hintText: "SEARCH",
+                          hintStyle: GoogleFonts.inter(color: AppTheme.inconclusiveGray, fontSize: 12, fontWeight: FontWeight.bold),
+                          border: InputBorder.none,
+                          isDense: true,
+                        ),
+                      ),
+                    ),
+                    const Icon(Icons.search_rounded, color: AppTheme.inconclusiveGray, size: 18),
+                  ],
+                ),
               ),
             ],
           ),
+          const SizedBox(height: 20),
+
+          // Main Table Card (Screen 2 Mockup)
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: AppTheme.cardDark,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppTheme.cardBorder, width: 1.2),
+            ),
+            child: Column(
+              children: [
+                // Table Header Row
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  decoration: const BoxDecoration(
+                    border: Border(bottom: BorderSide(color: AppTheme.cardBorder, width: 1)),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(flex: 3, child: _buildHeaderCell("File Name ↕")),
+                      Expanded(flex: 1, child: _buildHeaderCell("Type ↕")),
+                      Expanded(flex: 2, child: _buildHeaderCell("Result ↕")),
+                      Expanded(flex: 2, child: _buildHeaderCell("Confidence ↕")),
+                      Expanded(flex: 2, child: _buildHeaderCell("Date ↕")),
+                    ],
+                  ),
+                ),
+
+                // Table Rows
+                ...filteredList.map((item) => _buildTableRow(item)),
+
+                // Table Pagination Bar (Screen 2 Mockup)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  decoration: const BoxDecoration(
+                    border: Border(top: BorderSide(color: AppTheme.cardBorder, width: 1)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.chevron_left_rounded, color: AppTheme.inconclusiveGray, size: 20),
+                        onPressed: _currentPage > 1 ? () => setState(() => _currentPage--) : null,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF162A23),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: AppTheme.neonMint.withValues(alpha: 0.3)),
+                        ),
+                        child: Text("1", style: GoogleFonts.inter(color: AppTheme.neonMint, fontSize: 13, fontWeight: FontWeight.bold)),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(".. 7", style: GoogleFonts.inter(color: AppTheme.inconclusiveGray, fontSize: 13)),
+                      IconButton(
+                        icon: const Icon(Icons.chevron_right_rounded, color: AppTheme.inconclusiveGray, size: 20),
+                        onPressed: () => setState(() => _currentPage++),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeaderCell(String title) {
+    return Text(
+      title,
+      style: GoogleFonts.inter(
+        color: AppTheme.inconclusiveGray,
+        fontSize: 12,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+
+  Widget _buildTableRow(Map<String, dynamic> item) {
+    final isAuthentic = item['result'] == 'AUTHENTIC';
+    return InkWell(
+      onTap: () => widget.onViewScanDetails(item['id'], item['result']),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(color: Color(0xFF15221E), width: 1)),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: Text(
+                item['filename'],
+                style: GoogleFonts.inter(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: Text(
+                item['type'],
+                style: GoogleFonts.inter(color: AppTheme.inconclusiveGray, fontSize: 13),
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isAuthentic ? AppTheme.neonMint.withValues(alpha: 0.15) : AppTheme.manipulatedRed.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    item['result'],
+                    style: GoogleFonts.inter(
+                      color: isAuthentic ? AppTheme.neonMint : AppTheme.manipulatedRed,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Text(
+                item['confidence'],
+                style: GoogleFonts.inter(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Text(
+                item['date'],
+                style: GoogleFonts.inter(color: AppTheme.inconclusiveGray, fontSize: 13),
+              ),
+            ),
+          ],
         ),
       ),
     );
