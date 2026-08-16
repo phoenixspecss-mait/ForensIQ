@@ -11,31 +11,11 @@ class ApiView extends StatefulWidget {
 }
 
 class _ApiViewState extends State<ApiView> {
-  String _apiKey = "fiq_live_98a72b14c30d4e5f6g7h8i9j01a2b";
-  bool _isCopied = false;
-
-  void _copyKey() {
-    Clipboard.setData(ClipboardData(text: _apiKey));
-    setState(() => _isCopied = true);
+  void _copyKey(String key) {
+    Clipboard.setData(ClipboardData(text: key));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text("API Key copied to clipboard!"),
-        backgroundColor: AppTheme.neonMint,
-        duration: Duration(seconds: 2),
-      ),
-    );
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) setState(() => _isCopied = false);
-    });
-  }
-
-  void _regenerateKey() {
-    setState(() {
-      _apiKey = "fiq_live_${DateTime.now().millisecondsSinceEpoch.toRadixString(16)}1a2b";
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("New API key generated successfully!"),
+        content: Text("Key copied to clipboard!"),
         backgroundColor: AppTheme.neonMint,
         duration: Duration(seconds: 2),
       ),
@@ -49,141 +29,271 @@ class _ApiViewState extends State<ApiView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. API Key Management Card
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(24.0),
-            decoration: BoxDecoration(
-              color: AppTheme.cardDark,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppTheme.cardBorder, width: 1.2),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "API Key Management",
-                  style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+          // Header Row with Action Buttons (Image 4 Mockup)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "API Environment",
+                    style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  "API Key",
-                  style: GoogleFonts.inter(
-                    color: AppTheme.inconclusiveGray,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
+                  const SizedBox(height: 4),
+                  Text(
+                    "Manage integration keys and monitor forensic analysis throughput.",
+                    style: GoogleFonts.inter(
+                      color: AppTheme.inconclusiveGray,
+                      fontSize: 14,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final isNarrow = constraints.maxWidth < 600;
-                    return isNarrow
-                        ? Column(
-                            children: [
-                              _buildKeyTextField(),
-                              const SizedBox(height: 12),
-                              Row(
-                                children: [
-                                  Expanded(child: _buildCopyBtn()),
-                                  const SizedBox(width: 8),
-                                  Expanded(child: _buildRegenerateBtn()),
-                                ],
-                              )
-                            ],
-                          )
-                        : Row(
-                            children: [
-                              Expanded(child: _buildKeyTextField()),
-                              const SizedBox(width: 12),
-                              _buildCopyBtn(),
-                              const SizedBox(width: 8),
-                              _buildRegenerateBtn(),
-                            ],
-                          );
-                  },
-                ),
-              ],
-            ),
+                ],
+              ),
+              Row(
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: () {},
+                    icon: const Icon(Icons.download_rounded, color: Colors.white, size: 16),
+                    label: Text("Export Logs", style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      side: const BorderSide(color: AppTheme.cardBorder),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton.icon(
+                    onPressed: () {},
+                    icon: const Icon(Icons.add_rounded, color: Colors.black, size: 18),
+                    label: Text("+ Create New Key", style: GoogleFonts.inter(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 13)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.neonMint,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      elevation: 0,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-
           const SizedBox(height: 24),
 
-          // 2. Usage Statistics Card
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(24.0),
-            decoration: BoxDecoration(
-              color: AppTheme.cardDark,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppTheme.cardBorder, width: 1.2),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
+          // Main 2-Column Section (Authentication Keys Left, Volume & Docs Right)
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isNarrow = constraints.maxWidth < 900;
+              return isNarrow
+                  ? Column(
+                      children: [
+                        _buildAuthenticationKeysCard(),
+                        const SizedBox(height: 24),
+                        _buildSevenDayVolumeCard(),
+                        const SizedBox(height: 24),
+                        _buildDeveloperResourcesCard(),
+                      ],
+                    )
+                  : Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          "Usage Statistics",
-                          style: GoogleFonts.inter(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          "Requests per Day",
-                          style: GoogleFonts.inter(
-                            color: AppTheme.inconclusiveGray,
-                            fontSize: 13,
+                        Expanded(flex: 3, child: _buildAuthenticationKeysCard()),
+                        const SizedBox(width: 24),
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            children: [
+                              _buildSevenDayVolumeCard(),
+                              const SizedBox(height: 24),
+                              _buildDeveloperResourcesCard(),
+                            ],
                           ),
                         ),
                       ],
-                    ),
-                    RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "Total Requests: ",
-                            style: GoogleFonts.inter(color: AppTheme.inconclusiveGray, fontSize: 13),
-                          ),
-                          TextSpan(
-                            text: "11.4k",
-                            style: GoogleFonts.inter(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
+                    );
+            },
+          ),
+        ],
+      ),
+    );
+  }
 
-                // Bar Chart Visualization (Screen 4 Mockup)
-                SizedBox(
-                  height: 240,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildBarItem("Oct 21", "1.2k", 0.52),
-                      _buildBarItem("Oct 22", "1.5k", 0.65),
-                      _buildBarItem("Oct 23", "0.8k", 0.35),
-                      _buildBarItem("Oct 24", "1.6k", 0.70),
-                      _buildBarItem("Oct 25", "2.0k", 0.85),
-                      _buildBarItem("Oct 26", "1.6k", 0.70),
-                      _buildBarItem("Oct 27", "2.3k", 1.00),
-                    ],
+  // Left Column Card: Authentication Keys (Image 4 Mockup)
+  Widget _buildAuthenticationKeysCard() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppTheme.cardDark,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.vpn_key_outlined, color: AppTheme.neonMint, size: 20),
+                  const SizedBox(width: 10),
+                  Text("Authentication Keys", style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF142922),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text("2 Active", style: GoogleFonts.inter(color: AppTheme.neonMint, fontSize: 11, fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // Key 1: Production Environment
+          _buildKeyCard(
+            title: "Production Environment",
+            statusColor: AppTheme.neonMint,
+            createdDate: "Created on Oct 24, 2023",
+            keyText: "sk_live_f892e*************************a9c2",
+          ),
+          const SizedBox(height: 16),
+
+          // Key 2: Staging Testing
+          _buildKeyCard(
+            title: "Staging Testing",
+            statusColor: Colors.orangeAccent,
+            createdDate: "Created on Nov 02, 2023",
+            keyText: "sk_test_1b44c*************************3f81",
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildKeyCard({
+    required String title,
+    required Color statusColor,
+    required String createdDate,
+    required String keyText,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F1A17),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Text(title, style: GoogleFonts.inter(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                  const SizedBox(width: 6),
+                  CircleAvatar(radius: 3, backgroundColor: statusColor),
+                ],
+              ),
+              Text("Revoke", style: GoogleFonts.inter(color: Colors.redAccent, fontSize: 12, fontWeight: FontWeight.w600)),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(createdDate, style: GoogleFonts.inter(color: AppTheme.inconclusiveGray, fontSize: 12)),
+          const SizedBox(height: 14),
+
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppTheme.cardBorder),
+                  ),
+                  child: Text(
+                    keyText,
+                    style: GoogleFonts.firaCode(color: Colors.white, fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                icon: const Icon(Icons.copy_rounded, color: AppTheme.inconclusiveGray, size: 18),
+                onPressed: () => _copyKey(keyText),
+              ),
+              OutlinedButton.icon(
+                onPressed: () {},
+                icon: const Icon(Icons.refresh_rounded, color: Colors.white, size: 14),
+                label: Text("Roll", style: GoogleFonts.inter(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  side: const BorderSide(color: AppTheme.cardBorder),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Right Column Card 1: 7-Day Volume (Image 4 Mockup)
+  Widget _buildSevenDayVolumeCard() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppTheme.cardDark,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.bar_chart_rounded, color: AppTheme.neonMint, size: 20),
+              const SizedBox(width: 10),
+              Text("7-Day Volume", style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Text("14.2k", style: GoogleFonts.inter(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              const Icon(Icons.north_east_rounded, color: AppTheme.neonMint, size: 14),
+              const SizedBox(width: 4),
+              Text("+12% vs previous week", style: GoogleFonts.inter(color: AppTheme.neonMint, fontSize: 12, fontWeight: FontWeight.w600)),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // Bar chart representation
+          SizedBox(
+            height: 100,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                _buildBar("M", 0.5),
+                _buildBar("T", 0.75),
+                _buildBar("W", 0.6),
+                _buildBar("T", 0.9),
+                _buildBar("F", 0.7),
+                _buildBar("S", 0.45),
+                _buildBar("S", 0.85),
               ],
             ),
           ),
@@ -192,98 +302,76 @@ class _ApiViewState extends State<ApiView> {
     );
   }
 
-  Widget _buildKeyTextField() {
-    final masked = "${_apiKey.substring(0, 8)}••••••••••••••••${_apiKey.substring(_apiKey.length - 4)}";
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0F1A17),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.cardBorder),
-      ),
-      child: Text(
-        masked,
-        style: GoogleFonts.firaCode(
-          color: Colors.white,
-          fontSize: 14,
-          letterSpacing: 1.0,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCopyBtn() {
-    return ElevatedButton(
-      onPressed: _copyKey,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF192A24),
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        elevation: 0,
-      ),
-      child: Text(
-        _isCopied ? "COPIED" : "COPY",
-        style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13),
-      ),
-    );
-  }
-
-  Widget _buildRegenerateBtn() {
-    return ElevatedButton(
-      onPressed: _regenerateKey,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppTheme.neonMint,
-        foregroundColor: Colors.black,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        elevation: 0,
-      ),
-      child: Text(
-        "REGENERATE",
-        style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black),
-      ),
-    );
-  }
-
-  Widget _buildBarItem(String label, String valueText, double heightFactor) {
+  Widget _buildBar(String day, double hFactor) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-          decoration: BoxDecoration(
-            color: const Color(0xFF162A23),
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Text(
-            valueText,
-            style: GoogleFonts.inter(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-          ),
+          width: 24,
+          height: 80 * hFactor,
+          decoration: BoxDecoration(color: AppTheme.neonMint, borderRadius: BorderRadius.circular(4)),
         ),
         const SizedBox(height: 8),
-        Container(
-          width: 36,
-          height: 160 * heightFactor,
-          decoration: BoxDecoration(
-            color: AppTheme.neonMint,
-            borderRadius: BorderRadius.circular(6),
-            gradient: LinearGradient(
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
-              colors: [
-                AppTheme.neonMint.withValues(alpha: 0.6),
-                AppTheme.neonMint,
+        Text(day, style: GoogleFonts.inter(color: AppTheme.inconclusiveGray, fontSize: 11, fontWeight: FontWeight.bold)),
+      ],
+    );
+  }
+
+  // Right Column Card 2: Developer Resources (Image 4 Mockup)
+  Widget _buildDeveloperResourcesCard() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppTheme.cardDark,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.menu_book_outlined, color: AppTheme.neonMint, size: 20),
+              const SizedBox(width: 10),
+              Text("Developer Resources", style: GoogleFonts.inter(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          const SizedBox(height: 20),
+          _buildResourceTile(Icons.code_rounded, "API Reference", "Endpoints & payloads"),
+          const SizedBox(height: 12),
+          _buildResourceTile(Icons.webhook_rounded, "Webhooks", "Real-time scan alerts"),
+          const SizedBox(height: 12),
+          _buildResourceTile(Icons.terminal_rounded, "Client SDKs", "Python, Node.js, Go"),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResourceTile(IconData icon, String title, String subtitle) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F1A17),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppTheme.cardBorder),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: AppTheme.inconclusiveGray, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: GoogleFonts.inter(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 2),
+                Text(subtitle, style: GoogleFonts.inter(color: AppTheme.inconclusiveGray, fontSize: 11)),
               ],
             ),
           ),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          label,
-          style: GoogleFonts.inter(color: AppTheme.inconclusiveGray, fontSize: 12),
-        ),
-      ],
+          const Icon(Icons.arrow_forward_rounded, color: AppTheme.inconclusiveGray, size: 16),
+        ],
+      ),
     );
   }
 }

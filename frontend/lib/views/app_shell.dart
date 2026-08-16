@@ -18,9 +18,16 @@ class AppShell extends StatefulWidget {
 }
 
 class _AppShellState extends State<AppShell> {
-  int _currentTabIndex = 0; // 0: Dashboard, 1: Scan Results, 2: History, 3: API, 4: Settings
-  String _activeJobId = "scan_001";
+  int _currentTabIndex = 0; // 0: Dashboard, 1: Recent Scans, 2: History, 3: API, 4: Settings
+  String _activeJobId = "SCAN-8924-Alpha";
   bool _isScanningActive = false;
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   void _startFileScan() async {
     try {
@@ -86,17 +93,17 @@ class _AppShellState extends State<AppShell> {
         backgroundColor: AppTheme.darkBackground,
         body: Row(
           children: [
-            // Left Navigation Sidebar (Screen 1, 2, 3, 4 Mockups)
+            // Left Navigation Sidebar (Exact Match for Reference Images)
             _buildSidebar(),
 
             // Main Content Area
             Expanded(
               child: Column(
                 children: [
-                  // Responsive Top Navigation Bar
-                  _buildTopHeader(),
+                  // Top Navigation Header Bar
+                  _buildTopHeaderBar(),
 
-                  // Active Screen View
+                  // Active View Page
                   Expanded(
                     child: pages[_currentTabIndex],
                   ),
@@ -108,12 +115,12 @@ class _AppShellState extends State<AppShell> {
       );
     }
 
-    // Mobile Navigation Shell (< 850px)
+    // Mobile Layout (< 850px)
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
-        child: _buildTopHeader(),
+        child: _buildTopHeaderBar(),
       ),
       body: pages[_currentTabIndex],
       bottomNavigationBar: Container(
@@ -125,8 +132,8 @@ class _AppShellState extends State<AppShell> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildMobileNavItem(0, Icons.dashboard_outlined, "Dashboard"),
-            _buildMobileNavItem(1, Icons.assessment_outlined, "Results"),
+            _buildMobileNavItem(0, Icons.grid_view_rounded, "Dashboard"),
+            _buildMobileNavItem(1, Icons.saved_search_rounded, "Scans"),
             _buildMobileNavItem(2, Icons.history_rounded, "History"),
             _buildMobileNavItem(3, Icons.code_rounded, "API"),
             _buildMobileNavItem(4, Icons.settings_outlined, "Settings"),
@@ -136,10 +143,10 @@ class _AppShellState extends State<AppShell> {
     );
   }
 
-  // Left Sidebar Component (Matching Reference Image Layout)
+  // Left Sidebar Component (Matching Reference Image Sidebar Exactly)
   Widget _buildSidebar() {
     return Container(
-      width: 220,
+      width: 230,
       decoration: const BoxDecoration(
         color: AppTheme.cardDark,
         border: Border(right: BorderSide(color: AppTheme.cardBorder, width: 1)),
@@ -148,41 +155,85 @@ class _AppShellState extends State<AppShell> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 24),
-          // ForensIQ Brand Logo Header
+          // ForensIQ Brand Shield Header
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(6),
+                  width: 32,
+                  height: 32,
                   decoration: BoxDecoration(
                     color: AppTheme.neonMint.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.fingerprint_rounded, color: AppTheme.neonMint, size: 22),
+                  child: const Icon(Icons.shield_outlined, color: AppTheme.neonMint, size: 20),
                 ),
                 const SizedBox(width: 10),
-                Text(
-                  "ForensIQ",
-                  style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "ForensIQ",
+                      style: GoogleFonts.inter(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        height: 1.1,
+                      ),
+                    ),
+                    Text(
+                      "DIGITAL AUTHENTICITY",
+                      style: GoogleFonts.inter(
+                        color: AppTheme.inconclusiveGray,
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
           const SizedBox(height: 36),
 
-          // Sidebar Menu Items
-          _buildSidebarNavItem(0, Icons.dashboard_outlined, "Dashboard"),
-          _buildSidebarNavItem(1, Icons.assessment_outlined, "SCAN RESULTS"),
+          // Navigation Links
+          _buildSidebarNavItem(0, Icons.grid_view_rounded, "Dashboard"),
+          _buildSidebarNavItem(1, Icons.saved_search_rounded, "Recent Scans"),
           _buildSidebarNavItem(2, Icons.history_rounded, "History"),
-          _buildSidebarNavItem(3, Icons.code_rounded, "</> API"),
+          _buildSidebarNavItem(3, Icons.code_rounded, "API"),
           _buildSidebarNavItem(4, Icons.settings_outlined, "Settings"),
 
           const Spacer(),
+          const Divider(color: AppTheme.cardBorder, height: 1),
+
+          // Bottom Account Button
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: InkWell(
+              onTap: () => setState(() => _currentTabIndex = 4),
+              borderRadius: BorderRadius.circular(10),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                child: Row(
+                  children: [
+                    const Icon(Icons.person_outline_rounded, color: AppTheme.inconclusiveGray, size: 20),
+                    const SizedBox(width: 12),
+                    Text(
+                      "Account",
+                      style: GoogleFonts.inter(
+                        color: AppTheme.inconclusiveGray,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
         ],
       ),
     );
@@ -201,23 +252,22 @@ class _AppShellState extends State<AppShell> {
           decoration: BoxDecoration(
             color: isSelected ? const Color(0xFF142E25) : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
-            border: isSelected ? Border.all(color: AppTheme.neonMint.withValues(alpha: 0.3)) : null,
+            border: isSelected ? const Border(left: BorderSide(color: AppTheme.neonMint, width: 3)) : null,
           ),
           child: Row(
             children: [
               Icon(
                 icon,
                 color: isSelected ? AppTheme.neonMint : AppTheme.inconclusiveGray,
-                size: 18,
+                size: 20,
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 14),
               Text(
                 title,
                 style: GoogleFonts.inter(
                   color: isSelected ? AppTheme.neonMint : AppTheme.inconclusiveGray,
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  letterSpacing: 0.3,
                 ),
               ),
             ],
@@ -227,11 +277,8 @@ class _AppShellState extends State<AppShell> {
     );
   }
 
-  // Top Header Bar Component (Matching Reference Image Layout)
-  Widget _buildTopHeader() {
-    final titles = ["Dashboard", "Scan Results", "History", "Settings", "API"];
-    final currentTitle = titles[_currentTabIndex < titles.length ? _currentTabIndex : 0];
-
+  // Top Header Bar Component (Matching Reference Image Header Bar)
+  Widget _buildTopHeaderBar() {
     return Container(
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -242,79 +289,104 @@ class _AppShellState extends State<AppShell> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Title
-          Text(
-            currentTitle,
-            style: GoogleFonts.inter(
-              color: Colors.white,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
+          // Search Input / Breadcrumb Bar
+          if (_currentTabIndex == 1) // Recent Scans Breadcrumb
+            Row(
+              children: [
+                Text("Recent Scans", style: GoogleFonts.inter(color: AppTheme.inconclusiveGray, fontSize: 13)),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  child: Icon(Icons.chevron_right_rounded, color: AppTheme.inconclusiveGray, size: 16),
+                ),
+                Text(_activeJobId, style: GoogleFonts.inter(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+              ],
+            )
+          else if (_currentTabIndex == 4) // Platform Settings Breadcrumb
+            Row(
+              children: [
+                Text("System Configuration", style: GoogleFonts.inter(color: AppTheme.inconclusiveGray, fontSize: 13)),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  child: Icon(Icons.chevron_right_rounded, color: AppTheme.inconclusiveGray, size: 16),
+                ),
+                Text("Settings", style: GoogleFonts.inter(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold)),
+              ],
+            )
+          else // Search Input (Dashboard, History, API)
+            Container(
+              width: 320,
+              height: 38,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: AppTheme.cardDark,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppTheme.cardBorder),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.search_rounded, color: AppTheme.inconclusiveGray, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      style: GoogleFonts.inter(color: Colors.white, fontSize: 13),
+                      decoration: InputDecoration(
+                        hintText: _currentTabIndex == 0
+                            ? "Search hash, filename, or ID..."
+                            : _currentTabIndex == 2
+                                ? "Search history..."
+                                : "Search datasets, reports...",
+                        hintStyle: GoogleFonts.inter(color: AppTheme.inconclusiveGray, fontSize: 12),
+                        border: InputBorder.none,
+                        isDense: true,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
 
-          // Action Buttons (Bell + PROFILE / SAVE CHANGES / DOCUMENTATION)
+          // Right Profile & Notifications Bar
           Row(
             children: [
-              if (_currentTabIndex == 3) // API screen
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.neonMint,
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    elevation: 0,
-                  ),
-                  child: Text(
-                    "DOCUMENTATION",
-                    style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.black),
-                  ),
-                ),
-
-              if (_currentTabIndex == 4) // Settings screen
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.neonMint,
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    elevation: 0,
-                  ),
-                  child: Text(
-                    "SAVE CHANGES",
-                    style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.black),
-                  ),
-                ),
-
-              const SizedBox(width: 12),
-
-              // Bell Notification Icon
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: AppTheme.cardDark,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppTheme.cardBorder),
-                ),
-                child: const Icon(Icons.notifications_outlined, color: AppTheme.inconclusiveGray, size: 18),
+              IconButton(
+                icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 20),
+                onPressed: () {},
               ),
+              IconButton(
+                icon: const Icon(Icons.help_outline_rounded, color: Colors.white, size: 20),
+                onPressed: () {},
+              ),
+              const SizedBox(width: 8),
+              Container(width: 1, height: 24, color: AppTheme.cardBorder),
               const SizedBox(width: 12),
 
-              // PROFILE Cyan Button
-              ElevatedButton.icon(
-                onPressed: () => setState(() => _currentTabIndex = 4),
-                icon: const Icon(Icons.person_outline_rounded, color: Colors.black, size: 16),
-                label: Text(
-                  "PROFILE",
-                  style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.neonMint,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  elevation: 0,
+              // Profile Avatar Button
+              InkWell(
+                onTap: () => setState(() => _currentTabIndex = 4),
+                borderRadius: BorderRadius.circular(20),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppTheme.neonMint,
+                      ),
+                      child: Center(
+                        child: Text(
+                          "AV",
+                          style: GoogleFonts.inter(color: Colors.black, fontSize: 12, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      "Dr. A. Vance",
+                      style: GoogleFonts.inter(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
+                    ),
+                  ],
                 ),
               ),
             ],
