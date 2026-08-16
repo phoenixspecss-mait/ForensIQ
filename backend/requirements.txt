@@ -20,7 +20,7 @@ scikit-learn>=1.4.0
 opencv-python-headless>=4.9.0
 
 # Video & Audio Forensics
-ffmpeg-python>=0.2.1
+ffmpeg-python>=0.2.0
 librosa>=0.10.0
 torchaudio>=2.0.0
 mediapipe>=0.10.0
