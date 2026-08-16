@@ -1,1 +1,44 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"expert-ai-43d53","appId":"1:845900841870:android:74be68697d99af6bb4dadf","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"expert-ai-43d53","appId":"1:845900841870:ios:b68a7377e978d1c7b4dadf","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"expert-ai-43d53","configurations":{"android":"1:845900841870:android:74be68697d99af6bb4dadf","ios":"1:845900841870:ios:b68a7377e978d1c7b4dadf","web":"1:845900841870:web:af425edb5251b5e6b4dadf"}}}}}}
+{
+  "database": {
+    "rules": "database.rules.json"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "forensiq-16901",
+          "appId": "1:327820252718:android:7cbb0b5fa873064b99b1bf",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "forensiq-16901",
+          "appId": "1:327820252718:ios:82a609f9112c27dc99b1bf",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "macos": {
+        "default": {
+          "projectId": "forensiq-16901",
+          "appId": "1:327820252718:ios:82a609f9112c27dc99b1bf",
+          "uploadDebugSymbols": false,
+          "fileOutput": "macos/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "forensiq-16901",
+          "configurations": {
+            "android": "1:327820252718:android:7cbb0b5fa873064b99b1bf",
+            "web": "1:327820252718:web:355b065487295cd199b1bf"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+# Git & IDE files
+.git
+.gitignore
+.vscode
+.idea
+.DS_Store
+
+# Python environment & artifacts
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+*.egg-info/
+dist/
+
+# Flutter build & cache artifacts
+frontend/.dart_tool/
+frontend/.flutter-plugins
+frontend/.flutter-plugins-dependencies
+frontend/build/
+
+# Heavy local temporary media uploads & archives
+Part-1.zip
+uploads/
+backend/uploads/
+backend/deepfake/outputs/*.pdf
+backend/deepfake/outputs/*.json

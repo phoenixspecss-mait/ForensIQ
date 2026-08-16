@@ -9,6 +9,12 @@ import tempfile
 import os
 import sys
 from pathlib import Path
+
+# Ensure backend directory is in sys.path
+BACKEND_DIR = Path(__file__).resolve().parent
+if str(BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(BACKEND_DIR))
+
 from typing import Optional
 import uvicorn
 import uuid
@@ -20,12 +26,12 @@ from part3_video_audio.src.models.pipeline import VideoAudioForensics, AudioDeep
 from part4_ensemble import EnsembleForensicsEngine, get_ensemble_engine
 
 # Integrate deepfake module placed under backend/deepfake
-DEEPFAKE_DIR = Path(__file__).resolve().parent / "deepfake"
+DEEPFAKE_DIR = BACKEND_DIR / "deepfake"
 if str(DEEPFAKE_DIR) not in sys.path:
     sys.path.insert(0, str(DEEPFAKE_DIR))
 
 # Integrate deepfake detector module placed under backend/deepfake-detector-main (Part 2)
-DEEPFAKE_DETECTOR_DIR = Path(__file__).resolve().parent / "deepfake-detector-main"
+DEEPFAKE_DETECTOR_DIR = BACKEND_DIR / "deepfake-detector-main"
 if str(DEEPFAKE_DETECTOR_DIR) not in sys.path:
     sys.path.insert(0, str(DEEPFAKE_DETECTOR_DIR))
 
@@ -99,9 +105,11 @@ async def startup_event():
 
     # Initialize Part 3
     try:
-        face_landmarker_path = "backend/face_landmarker.task"
+        face_landmarker_path = str(BACKEND_DIR / "face_landmarker.task")
         if not os.path.exists(face_landmarker_path):
-            raise FileNotFoundError(f"{face_landmarker_path} not found")
+            face_landmarker_path = "backend/face_landmarker.task"
+        if not os.path.exists(face_landmarker_path):
+            raise FileNotFoundError(f"face_landmarker.task not found at {face_landmarker_path}")
 
         part3_pipeline = VideoAudioForensics(landmarker_model_path=face_landmarker_path)
         print("✅ Part 3 (Video/Audio) initialized")
@@ -353,6 +361,18 @@ async def gateway_list_jobs(limit: int = 20):
     jobs_list = list(jobs_db.values())
     jobs_list.sort(key=lambda x: x["created_at"], reverse=True)
     return jobs_list[:limit]
+
+
+@app.get("/")
+async def root():
+    """Root endpoint - service metadata"""
+    return {
+        "app": "ForensIQ - Multimodal Forensics Analysis Server",
+        "version": "2.0.0",
+        "status": "online",
+        "health_check": "/health",
+        "docs_url": "/docs"
+    }
 
 
 @app.get("/health")

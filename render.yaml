@@ -1,0 +1,38 @@
+# Render Blueprint - ForensIQ Multimodal Forensics Application
+# Documentation: https://render.com/docs/blueprint-spec
+
+services:
+  # ---------------------------------------------------------------------------
+  # 1. Backend Service (FastAPI Forensics Engine)
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: forensiq-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile.backend
+    dockerContext: .
+    plan: free
+    region: oregon
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: PYTHONUNBUFFERED
+        value: "1"
+
+  # ---------------------------------------------------------------------------
+  # 2. Frontend Service (Flutter Web UI served via Nginx)
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: forensiq-frontend
+    runtime: docker
+    dockerfilePath: ./Dockerfile.frontend
+    dockerContext: .
+    plan: free
+    region: oregon
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 80
+      - key: API_BASE_URL
+        value: https://forensiq-backend.onrender.com
