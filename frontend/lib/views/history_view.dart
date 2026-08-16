@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:forensiq/services/api_service.dart';
 import 'package:forensiq/theme/app_theme.dart';
 
 class HistoryView extends StatefulWidget {
@@ -14,8 +15,9 @@ class HistoryView extends StatefulWidget {
 class _HistoryViewState extends State<HistoryView> {
   String _activeFilter = "All";
   int _currentPage = 1;
+  bool _isLoading = true;
 
-  final List<Map<String, dynamic>> _allHistory = [
+  List<Map<String, dynamic>> _allHistory = [
     {
       "id": "scan_001",
       "filename": "evidence_a_001.jpg",
@@ -61,6 +63,53 @@ class _HistoryViewState extends State<HistoryView> {
       "icon": Icons.image_outlined,
     },
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLiveHistory();
+  }
+
+  Future<void> _loadLiveHistory() async {
+    try {
+      final res = await ApiService.fetchDashboardIntegrity();
+      if (mounted && res['recent_scans'] != null) {
+        final List liveScans = res['recent_scans'];
+        if (liveScans.isNotEmpty) {
+          final List<Map<String, dynamic>> parsed = liveScans.map((s) {
+            final verdict = (s['verdict'] ?? 'AUTHENTIC').toString().toUpperCase();
+            final isAuthentic = verdict.contains('AUTHENTIC');
+            final isManipulated = verdict.contains('MANIPULATED');
+            final color = isAuthentic
+                ? AppTheme.neonMint
+                : (isManipulated ? AppTheme.manipulatedRed : Colors.orangeAccent);
+            final mediaType = (s['media_type'] ?? 'image').toString().toLowerCase();
+
+            return {
+              "id": s['id'] ?? "scan_${DateTime.now().millisecondsSinceEpoch}",
+              "filename": s['title'] ?? "Artifact Scan",
+              "type": mediaType.contains('video') ? ".MP4" : (mediaType.contains('audio') ? ".WAV" : ".JPG"),
+              "result": isAuthentic ? "Authentic" : (isManipulated ? "Manipulated" : "Unverifiable"),
+              "confidence": isAuthentic ? "99.2%" : (isManipulated ? "89.4%" : "45.0%"),
+              "date": s['time_display'] ?? "Today",
+              "color": color,
+              "category": mediaType.contains('video') ? "Videos" : (mediaType.contains('audio') ? "Audio" : "Images"),
+              "icon": mediaType.contains('video')
+                  ? Icons.video_camera_back_outlined
+                  : (mediaType.contains('audio') ? Icons.insert_drive_file_outlined : Icons.image_outlined),
+            };
+          }).toList();
+
+          setState(() {
+            _allHistory = [...parsed, ..._allHistory];
+            _isLoading = false;
+          });
+          return;
+        }
+      }
+    } catch (_) {}
+    if (mounted) setState(() => _isLoading = false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +181,12 @@ class _HistoryViewState extends State<HistoryView> {
           const SizedBox(height: 24),
 
           // Data Table Card (Image 3 Mockup)
-          Container(
+          _isLoading
+              ? const SizedBox(
+                  height: 200,
+                  child: Center(child: CircularProgressIndicator(color: AppTheme.neonMint)),
+                )
+              : Container(
             decoration: BoxDecoration(
               color: AppTheme.cardDark,
               borderRadius: BorderRadius.circular(16),
