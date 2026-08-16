@@ -137,7 +137,8 @@ def test_models_and_endpoints():
         rpt_resp = client.get("/api/scan/DF-7734/report")
         assert rpt_resp.status_code == 200
         rpt_data = rpt_resp.json()
-        assert rpt_data['authenticity_percentage'] == 24
+        assert rpt_data['authenticity_percentage'] == 10
+        assert rpt_data['manipulation_probability'] == 90.0
         assert "facial_heatmap" in rpt_data["analysis_breakdown"]
         print(f"   GET /api/scan/DF-7734/report -> Verdict: {rpt_data['verdict']}, Authenticity: {rpt_data['authenticity_percentage']}%")
 

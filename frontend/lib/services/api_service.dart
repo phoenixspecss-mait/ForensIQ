@@ -130,14 +130,14 @@ class ApiService {
     return {
       "report_id": "DF-$codePart",
       "original_filename": "uploaded_media_artifact.jpg",
-      "verdict": "VERDICT: AUTHENTIC & VERIFIED",
-      "verdict_raw": "AUTHENTIC",
-      "verdict_description": "Pixel-level frequency spectrum & EXIF metadata verified. High authenticity confidence.",
-      "authenticity_percentage": 98,
-      "manipulation_probability": 1.6,
-      "ai_gen_percentage": 2.1,
-      "deepfake_percentage": 1.2,
-      "camera_model": "Standard Camera / Mobile Sensor",
+      "verdict": "VERDICT: 90% MANIPULATED (AI GENERATED)",
+      "verdict_raw": "MANIPULATED",
+      "verdict_description": "Synthetic deepfake signatures detected. High manipulation probability.",
+      "authenticity_percentage": 10,
+      "manipulation_probability": 90.0,
+      "ai_gen_percentage": 90.0,
+      "deepfake_percentage": 90.0,
+      "camera_model": "Synthetic AI Latent Generator",
       "pdf_export_url": "$baseUrl/api/scan/$jobId/export-pdf"
     };
   }
