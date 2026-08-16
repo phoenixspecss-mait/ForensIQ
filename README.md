@@ -1,425 +1,286 @@
-# 🔬 ForensIQ v2.0 - Complete Multimodal Forensics Platform
+# 🔬 ForensIQ v2.0 - Multimodal Deepfake & Digital Media Authenticity Verification Platform
 
-**All 4 Parts Integrated**: Gateway → Image AI → Video AI → Ensemble Reports
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104.1-green.svg)](https://fastapi.tiangolo.com/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.2.0%2B-ee4c2c.svg)](https://pytorch.org/)
+[![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen.svg)]()
+
+> **Problem Statement Set – 1: Deepfake & Digital Media Authenticity Verification**  
+> *A unified AI/ML and digital forensics platform engineered to detect synthetic images, manipulated videos, and AI-generated voices. Provides verifiable confidence scores, risk level assessments, visual explainability heatmaps, C2PA content provenance validation, and automated forensic audit PDF reports.*
 
 ---
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- Python 3.10+
-- Optional: Redis for Part 1 queuing (or use in-memory jobs)
-- Optional: CUDA 11.8+ for GPU acceleration
+### 1. Prerequisites
+- **Python**: `3.10` or higher
+- **FFmpeg**: Required for video frame extraction and audio track separation
+- **Optional**: Redis (for Celery task queuing) & CUDA 11.8+ (for GPU acceleration)
 
-### Local Development
+### 2. Local Environment Setup
 
 ```bash
-# 1. Clone and setup
+# Clone and enter directory
 cd /Users/yashmalhotra/Documents/Spidey\ AI
-python -m venv venv
+
+# Create and activate virtual environment
+python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# 2. Install all dependencies
+# Install core dependencies
 pip install -r requirements.txt
-
-# 3. Verify MediaPipe model exists
-ls backend/face_landmarker.task
-
-# 4. (Optional) Train Part 3 Audio Model
-cd backend/part3_video_audio
-python -m src.training.train_audio
-cd ../../
-
-# 5. Start the complete ForensIQ API
-uvicorn backend.app:app --reload --host 0.0.0.0 --port 8000
 ```
 
-**Visit:** `http://localhost:8000/docs` - Interactive API documentation with Swagger UI
+### 3. Run Backend Verification Suite
 
----
-
-## 📊 Architecture Overview
-
-```
-                           ┌─────────────────────────────────────┐
-                           │   PART 1: GATEWAY & METADATA        │
-                           │  (File Upload, EXIF, C2PA Check)    │
-                           └──────────────┬──────────────────────┘
-                                          │
-                                    job_id, metadata
-                                          │
-                    ┌─────────────────────┼─────────────────────┐
-                    │                     │                     │
-        ┌───────────▼──────────┐  ┌─────────▼──────────┐  ┌───────▼──────────┐
-        │  PART 2: IMAGE AI    │  │  PART 3: VIDEO AI  │  │ (Direct Upload)  │
-        │   Pixel Forensics    │  │   Biometrics       │  │   Video/Image    │
-        │                      │  │   Audio Deepfake   │  │                  │
-        │  Track A: AI-Gen     │  │                    │  │                  │
-        │  Track B: Tampering  │  │  EAR, Blinks,      │  │                  │
-        │  Track C: PRNU       │  │  Mel-spectrograms  │  │                  │
-        └───────────┬──────────┘  └─────────┬──────────┘  └───────┬──────────┘
-                    │                       │                     │
-                    │ Score (0-1)           │ Score (0-1)         │
-                    │                       │                     │
-                    └─────────────────────┬─┴──────────────────────┘
-                                          │
-                           ┌──────────────▼──────────────┐
-                           │   PART 4: ENSEMBLE ENGINE   │
-                           │  Weighted Voting + Risk     │
-                           │  Assessment + Reports       │
-                           └──────────────┬──────────────┘
-                                          │
-                           ┌──────────────▼──────────────┐
-                           │  ForensicsReport (JSON)     │
-                           │  - Verdict                  │
-                           │  - Confidence               │
-                           │  - Risk Level               │
-                           │  - Recommendations          │
-                           └─────────────────────────────┘
-```
-
----
-
-## 🔌 API Endpoints
-
-### Part 1: Gateway & Metadata
 ```bash
-# Upload file and extract metadata
-POST /gateway/upload
-  → Returns: job_id + EXIF + C2PA data
-
-# Check job status
-GET /gateway/{job_id}/status
-  → Returns: Full job metadata
-
-# Queue for full analysis (Part 2/3/4)
-POST /gateway/{job_id}/analyze
-  → Returns: Complete forensics report
-
-# List recent jobs
-GET /gateway/jobs?limit=20
-  → Returns: Recent job history
+# Execute end-to-end unit tests verifying all 4 modules and API routes
+./venv/bin/python backend/test_backend_models.py
 ```
 
-### Part 2/3/4: Direct Analysis
-```bash
-# Analyze image (Part 2 + Part 4)
-POST /analyze/image?track_a=0.85&track_b=0.20&track_c=0.95
-  -F file=@image.jpg
-  → Returns: ForensicsReport
+### 4. Start the ForensIQ Platform Server
 
-# Analyze video (Part 3 + Part 4)
-POST /analyze/video
-  -F file=@video.mp4
-  → Returns: ForensicsReport
+```bash
+# Start FastAPI application with live reloading
+uvicorn backend.app:app --host 0.0.0.0 --port 8000
 ```
 
-### Utilities
-```bash
-# Health check (all parts)
-GET /health
+- **Interactive API Documentation (Swagger UI)**: `http://localhost:8000/docs`
+- **ReDoc Technical Docs**: `http://localhost:8000/redoc`
 
-# System status
-GET /models/status
+---
 
-# API info
-GET /
+## 📊 System Architecture
+
+```
+                          ┌────────────────────────────────────────────────────────┐
+                          │         PART 1: GATEWAY & METADATA EXTRACTION          │
+                          │   • File Validation (Type/Size)   • EXIF Extraction    │
+                          │   • C2PA Manifest Reader          • Redis/Celery Queue │
+                          └───────────────────────────┬────────────────────────────┘
+                                                      │
+                                          job_id & metadata signals
+                                                      │
+               ┌──────────────────────────────────────┼──────────────────────────────────────┐
+               │                                      │                                      │
+ ┌─────────────▼──────────────┐         ┌─────────────▼──────────────┐         ┌─────────────▼──────────────┐
+ │  PART 2: IMAGE FORENSICS   │         │   PART 3: VIDEO & AUDIO    │         │  DIRECT MODALITY UPLOAD    │
+ │  (deepfake-detector-main)  │         │      (part3_video_audio)   │         │ (Images / Videos / Audio)  │
+ │                            │         │                            │         │                            │
+ │ • BaselineNet & ForensicNet│         │ • MediaPipe FaceLandmarker │         │ • POST /analyze/image      │
+ │   (timm EfficientNet-b0)   │         │   (EAR, Blinks, Head Jitter)│        │ • POST /analyze/video      │
+ │ • Error Level Analysis     │         │ • FFmpeg Audio Extraction  │         │ • POST /analyze/deepfake   │
+ │ • 2D FFT Spectral Analysis │         │ • Mel-Spectrogram +        │         │                            │
+ │ • High-Freq Noise Residual │         │   AudioDeepfakeClassifier  │         │                            │
+ └─────────────┬──────────────┘         └─────────────┬──────────────┘         └─────────────┬──────────────┘
+               │                                      │                                      │
+     Track A / B / C Scores                 Video & Audio Anomaly                  Modality Scores
+               │                                      │                                      │
+               └──────────────────────────────────────┼──────────────────────────────────────┘
+                                                      │
+                                       ┌──────────────▼──────────────┐
+                                       │   PART 4: ENSEMBLE ENGINE    │
+                                       │    (part4_ensemble & deepfake)
+                                       │                             │
+                                       │ • Weighted Soft Voting      │
+                                       │ • Meta-Classifier Fusion    │
+                                       │ • PyTorch-GradCAM Heatmaps  │
+                                       │ • Risk Level Assessment     │
+                                       │ • Actionable Recommendations│
+                                       └──────────────┬──────────────┘
+                                                      │
+                                       ┌──────────────▼──────────────┐
+                                       │      FINAL DELIVERABLES     │
+                                       │  • Structured JSON Report   │
+                                       │  • ReportLab PDF Audit Doc  │
+                                       └─────────────────────────────┘
 ```
 
 ---
 
-## 📁 Complete Project Structure
+## 🛠 Complete Module Breakdown
 
-```
-ForensIQ/
-├── backend/
-│   ├── Part-1/                         # GATEWAY (added by user)
-│   │   ├── main.py                     # FastAPI gateway server
-│   │   ├── celery_app.py               # Celery task queue setup
-│   │   ├── tasks.py                    # Background tasks (EXIF, C2PA)
-│   │   ├── db.py                       # SQLite job storage
-│   │   └── requirements.txt
-│   │
-│   ├── ai-photo-detection-main/        # PART 2: Image Forensics (User's project)
-│   │   ├── src/
-│   │   │   ├── preprocessing/          # Dataset loading & standardization
-│   │   │   ├── models/                 # Model architectures
-│   │   │   ├── forensics/              # Pixel forensics extractors
-│   │   │   ├── explainability/         # Grad-CAM visualization
-│   │   │   ├── evaluation/             # Metrics & benchmarking
-│   │   │   └── training/               # Training loops (PyTorch)
-│   │   ├── configs/                    # YAML model configurations
-│   │   └── models/                     # Saved model weights (download separately)
-│   │
-│   ├── part3_video_audio/              # PART 3: Video & Audio Forensics
-│   │   ├── src/
-│   │   │   ├── models/
-│   │   │   │   ├── __init__.py
-│   │   │   │   └── pipeline.py         # VideoAudioForensics + AudioDeepfakeClassifier
-│   │   │   ├── training/
-│   │   │   │   ├── __init__.py
-│   │   │   │   └── train_audio.py      # AudioTrainer + AudioForensicsDataset
-│   │   │   ├── data/                   # Training datasets (user-supplied)
-│   │   │   └── utils/
-│   │   └── outputs/                    # Trained model weights saved here
-│   │
-│   ├── part4_ensemble/                 # PART 4: Ensemble & Reports
-│   │   ├── __init__.py
-│   │   └── ensemble_engine.py          # EnsembleForensicsEngine + ForensicsReport
-│   │
-│   ├── app.py                          # ⭐ MAIN: FastAPI server (integrated all parts)
-│   ├── config.py                       # Environment configuration
-│   ├── face_landmarker.task            # Pre-trained MediaPipe model
-│   └── uploads/                        # Temporary uploaded files (auto-created)
-│
-├── Procfile                            # Render deployment config
-├── runtime.txt                         # Python 3.10.13
-├── requirements.txt                    # All dependencies
-├── .gitignore
-├── .git/                               # Git repository
-└── README.md                           # This file
-```
+### 📦 Part 1: Gateway, Queuing & Metadata
+- **Primary Libraries**: `FastAPI`, `Celery`, `Redis`, `c2pa-python`, `exifread`
+- **Features**:
+  - Validates uploads against file extension allowlists (`.jpg`, `.png`, `.mp4`, `.wav`, `.mp3`) and file size limits (100MB).
+  - Extracts camera metadata (Make, Model, Software, GPS) via `exifread`.
+  - Parses C2PA Content Credentials provenance manifests (`c2pa-python`) to verify digital signature authenticity.
+  - Asynchronous background job queue backed by `Celery` + `Redis`.
+
+### 🖼 Part 2: Image AI & Pixel Forensics (`deepfake-detector-main`)
+- **Primary Libraries**: `PyTorch`, `OpenCV`, `timm`, `NumPy`, `SciPy`
+- **Features**:
+  - **Neural Backbones**: `BaselineNet` (single-stream EfficientNet-b0 via `timm`) and `ForensicNet` (dual-stream RGB + Noise Residual fusion).
+  - **Classical Pixel Forensics**:
+    - **Track A (AI Generation)**: 2D FFT log-magnitude spectral analysis detecting high-frequency periodic grid artifacts left by GANs/Diffusion models.
+    - **Track B (Tampering & Splicing)**: Error Level Analysis (ELA) measuring JPEG re-compression rate variances across image regions.
+    - **Track C (PRNU Sensor Verification)**: Denoised high-frequency noise residual standard deviation measuring camera sensor fingerprint consistency.
+
+### 🎥 Part 3: Video Biometrics & Audio AI (`part3_video_audio`)
+- **Primary Libraries**: `ffmpeg-python`, `MediaPipe`, `librosa`, `torchaudio`
+- **Features**:
+  - **Video Biometrics**: Facial landmark tracking via `MediaPipe` `FaceLandmarker` analyzing Eye Aspect Ratio (EAR), blink variance dynamics, and erratic head jitter.
+  - **Audio Track Extraction**: Automated 16kHz mono audio extraction using `ffmpeg-python`.
+  - **Voice Deepfake Detection**: Audio Spectrogram conversion using `torchaudio.transforms.MelSpectrogram` passed into PyTorch `AudioDeepfakeClassifier` CNN model.
+
+### 📊 Part 4: Ensemble Engine, Explainability & PDF Reports (`part4_ensemble` & `deepfake`)
+- **Primary Libraries**: `PyTorch-GradCAM`, `ReportLab`, `Pydantic`, `scikit-learn`
+- **Features**:
+  - **Ensemble Fusion**: Weighted soft-voting scheme and `scikit-learn` `LogisticRegression` meta-classifier fusing multimodal probabilities.
+  - **Visual Explainability**: `pytorch-grad-cam` layer heatmaps highlighting tampered or synthetic image regions.
+  - **PDF Audit Generation**: `ReportLab` engine compiling structured forensic audit documentation containing confidence metrics, indicators, and recommendations.
 
 ---
 
-## 📋 Part 1: Gateway Workflow
+## 🔌 API Reference & Usage Examples
 
-### Step 1: Upload & Extract Metadata
+### 1. Gateway Upload & Metadata Extraction
 ```bash
 curl -X POST "http://localhost:8000/gateway/upload" \
-  -F "file=@suspect_video.mp4"
+  -F "file=@suspect_image.jpg"
 ```
-
 **Response:**
 ```json
 {
-  "job_id": "abc123-def456",
-  "original_filename": "suspect_video.mp4",
-  "saved_filename": "abc123-def456.mp4",
-  "size_mb": 45.6,
+  "job_id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+  "original_filename": "suspect_image.jpg",
+  "saved_filename": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d.jpg",
+  "size_mb": 1.25,
   "status": "metadata_extracted",
   "metadata": {
-    "exif_present": false,
+    "exif_present": true,
     "has_c2pa": false,
-    "camera_model": null
+    "camera_model": "iPhone 13 Pro"
   },
-  "next_step": "POST /gateway/abc123-def456/analyze or GET /gateway/abc123-def456/status"
+  "next_step": "POST /gateway/9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d/analyze"
 }
 ```
 
-### Step 2: Check Status
+### 2. Direct Image Analysis (Part 2 + Part 4)
 ```bash
-curl "http://localhost:8000/gateway/abc123-def456/status"
+curl -X POST "http://localhost:8000/analyze/image" \
+  -F "file=@sample_photo.jpg"
 ```
-
-### Step 3: Queue for Full Analysis
-```bash
-curl -X POST "http://localhost:8000/gateway/abc123-def456/analyze?file_type=video"
-```
-
-**Returns:** Complete ForensicsReport from Part 4
-
----
-
-## 🎯 Part 3: Train Audio Deepfake Classifier
-
-### Dataset Format
-```
-backend/part3_video_audio/
-├── data/
-│   ├── train_audio/
-│   │   ├── real_001.wav
-│   │   ├── real_002.wav
-│   │   ├── deepfake_001.wav
-│   │   └── deepfake_002.wav
-│   ├── val_audio/
-│   │   └── ...
-│   ├── train_labels.json
-│   └── val_labels.json
-└── outputs/
-    └── [models saved here]
-```
-
-### Labels Format
-```json
-{
-  "real_001.wav": 0,
-  "real_002.wav": 0,
-  "deepfake_001.wav": 1,
-  "deepfake_002.wav": 1
-}
-```
-
-### Train
-```bash
-cd backend/part3_video_audio
-python -m src.training.train_audio
-```
-
-**Output:**
-- Model weights: `outputs/audio_deepfake_classifier_20240815_120000.pth`
-- Training history: `outputs/audio_deepfake_classifier_20240815_120000_history.json`
-
----
-
-## 📊 Example API Response (Complete Report)
-
-```bash
-curl -X POST "http://localhost:8000/analyze/video" -F "file=@video.mp4"
-```
-
 **Response:**
 ```json
 {
-  "timestamp": "2024-08-15T12:34:56.789123",
-  "input_file": "video.mp4",
-  "file_type": "video",
-  "final_verdict": "AI_GENERATED",
-  "confidence_score": 0.8765,
-  "risk_level": "CRITICAL",
-  
-  "track_a_synthetic_prob": 0.0,
-  "track_b_tampered_prob": 0.0,
-  "track_c_prnu_match": 0.0,
-  "video_anomaly_score": 0.5210,
-  "audio_anomaly_score": 0.8765,
-  
-  "primary_indicators": [
-    "Audio deepfake indicators (87.65%)",
-    "Video biometric anomalies detected (52.10%)"
-  ],
-  "secondary_indicators": [
-    "Unnatural blink pattern",
-    "High head jitter (erratic movement)"
-  ],
+  "timestamp": "2026-08-16T17:23:00.123456",
+  "input_file": "sample_photo.jpg",
+  "file_type": "image",
+  "track_a_synthetic_prob": 0.1520,
+  "track_b_tampered_prob": 0.0840,
+  "track_c_prnu_match": 0.9200,
+  "final_verdict": "AUTHENTIC",
+  "confidence_score": 0.8480,
+  "risk_level": "LOW",
+  "primary_indicators": [],
+  "secondary_indicators": [],
   "recommendations": [
-    "🚨 URGENT: Escalate to forensics specialist",
-    "Preserve all original file bytes",
-    "Flag for fact-checking and source verification",
-    "Consider requesting raw file metadata"
+    "✓ Content appears authentic",
+    "No major forensic red flags detected"
   ]
 }
 ```
 
----
-
-## 🚢 Deploy to Render
-
-### 1. Push to GitHub
+### 3. Deepfake Score Fusion & PDF Report Generation
 ```bash
-git add .
-git commit -m "ForensIQ v2.0: All 4 parts integrated"
-git push origin main
+curl -X POST "http://localhost:8000/analyze/deepfake" \
+  -F "file=@deepfake_video.mp4"
 ```
-
-### 2. Connect to Render
-1. Go to https://dashboard.render.com
-2. Click **New → Web Service**
-3. Connect your GitHub repo
-4. Configure:
-   - **Build Command:** `pip install -r requirements.txt`
-   - **Start Command:** `uvicorn backend.app:app --host 0.0.0.0 --port 8000`
-   - **Environment Variables:**
-     ```
-     PYTHON_VERSION=3.10
-     PORT=8000
-     ```
-
-### 3. Test Deployment
-- Health: `https://your-service.onrender.com/health`
-- Docs: `https://your-service.onrender.com/docs`
-- API: `https://your-service.onrender.com/`
-
----
-
-## 🔬 Component Details
-
-### Part 1: Gateway & Metadata (Integrated)
-- ✅ File upload with validation (50MB limit)
-- ✅ EXIF metadata extraction (camera, timestamp, GPS)
-- ✅ C2PA content credentials verification
-- ✅ SQLite job tracking (or Redis with Celery)
-- ✅ Asynchronous task queuing
-
-### Part 2: Image AI & Pixel Forensics
-- ✅ Track A: AI-generation detection
-- ✅ Track B: Image tampering & localization
-- ✅ Track C: PRNU camera sensor verification
-- 📋 Requires custom model weights (download/train separately)
-
-### Part 3: Video Biometrics & Audio AI
-- ✅ Eye Aspect Ratio (EAR) for blink dynamics
-- ✅ Head jitter detection
-- ✅ Face landmark tracking (MediaPipe FaceLandmarker)
-- ✅ Audio deepfake detection (CNN + mel-spectrograms)
-- ✅ Training pipeline included
-
-### Part 4: Ensemble Engine & Reports
-- ✅ Weighted voting (25% Track A, 25% Track B, 15% Track C, 20% Video, 15% Audio)
-- ✅ Risk assessment (LOW, MEDIUM, HIGH, CRITICAL)
-- ✅ Confidence scoring
-- ✅ Actionable recommendations
-- ✅ JSON report generation
-
----
-
-## 🐛 Troubleshooting
-
-### Error: `face_landmarker.task not found`
-```bash
-# Download the model
-curl -o backend/face_landmarker.task \
-  https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
-```
-
-### Error: `No module named exifread` or `c2pa`
-```bash
-# Install Part 1 dependencies
-pip install exifread c2pa-python celery redis
-```
-
-### Error: `AudioDeepfakeClassifier weights not found`
-```bash
-# Train the model first
-cd backend/part3_video_audio
-python -m src.training.train_audio
-# Requires audio dataset in data/ folder
-```
-
-### Memory Issues on Mac
-```python
-# Edit backend/app.py startup_event():
-import torch
-torch.set_num_threads(2)
-torch.cuda.empty_cache()
+**Response:**
+```json
+{
+  "status": "success",
+  "input_file": "deepfake_video.mp4",
+  "fusion": {
+    "fused_score": 0.8850,
+    "verdict": "MANIPULATED"
+  },
+  "pdf_report": "/Users/yashmalhotra/Documents/Spidey AI/backend/deepfake/outputs/deepfake_4e611ca5.pdf",
+  "source": "deepfake"
+}
 ```
 
 ---
 
-## 📚 References
+## 📁 Repository Structure
 
-- [MediaPipe FaceLandmarker](https://developers.google.com/mediapipe/solutions/vision/face_landmarker)
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [Celery Task Queue](https://docs.celeryproject.org/)
-- [Render Deployment](https://render.com/docs)
-- [C2PA Content Credentials](https://c2pa.org/)
-- [EXIF Data Reference](https://en.wikipedia.org/wiki/Exif)
+```
+Spidey AI/
+├── backend/
+│   ├── Part-1/                         # Part 1: Gateway & Queuing
+│   │   ├── main.py                     # Standalone FastAPI gateway
+│   │   ├── celery_app.py               # Redis/Celery queue setup
+│   │   ├── tasks.py                    # Metadata background tasks
+│   │   └── db.py                       # SQLite job history
+│   │
+│   ├── deepfake-detector-main/         # Part 2: Image AI & Pixel Forensics
+│   │   ├── model.py                    # BaselineNet & ForensicNet (timm EfficientNet-b0)
+│   │   ├── forensics.py                # ELA, noise residual, 2D FFT spectrum
+│   │   ├── predict.py                  # Predict & multi-track scoring (Track A/B/C)
+│   │   ├── dataset.py                  # PyTorch Dataset loader
+│   │   └── train.py                    # Model training loop
+│   │
+│   ├── part3_video_audio/              # Part 3: Video Biometrics & Audio AI
+│   │   ├── src/models/pipeline.py      # MediaPipe FaceLandmarker + PyTorch AudioClassifier
+│   │   └── src/training/train_audio.py # Audio deepfake training pipeline
+│   │
+│   ├── part4_ensemble/                 # Part 4: Multi-Track Ensemble Engine
+│   │   └── __init__.py                 # EnsembleForensicsEngine & ForensicsReport
+│   │
+│   ├── deepfake/                       # Multimodal Fusion & Report Generation
+│   │   ├── score_fusion.py             # Weighted soft-voting & meta-classifier
+│   │   ├── gradcam_module.py           # PyTorch-GradCAM explainability
+│   │   ├── report_generator.py         # ReportLab PDF report generation
+│   │   └── schemas.py                  # Pydantic data schemas
+│   │
+│   ├── app.py                          # ⭐ Unified Main FastAPI Server
+│   ├── config.py                       # Configuration & environment variables
+│   ├── test_backend_models.py          # End-to-end system test suite
+│   └── face_landmarker.task            # Pre-trained MediaPipe landmark model
+│
+├── frontend/                           # Web user interface components
+├── requirements.txt                    # Unified dependency specification
+├── Procfile                            # Render deployment specification
+├── runtime.txt                         # Python runtime version (3.10.13)
+└── README.md                           # Documentation
+```
+
+---
+
+## 🧪 Testing & Verification
+
+The system includes an end-to-end verification script testing every sub-module and API endpoint:
+
+```bash
+./venv/bin/python backend/test_backend_models.py
+```
+
+**Test Coverage**:
+- ✅ Model Initialization (MediaPipe FaceLandmarker, PyTorch AudioDeepfakeClassifier, Image ForensicNet, Ensemble Engine).
+- ✅ Image Forensics Feature Extraction (ELA, Noise Residuals, 2D FFT).
+- ✅ Audio Feature Conversion (Spectrogram, MFCC variance, Neural Audio Score).
+- ✅ FastAPI Endpoints (`/health`, `/models/status`, `/analyze/image`, `/analyze/deepfake`).
+- ✅ PDF Audit Report Generation (`ReportLab`).
+
+---
+
+## 🤝 Problem Statement Compliance Checklist
+
+| Requirement | Platform Implementation | Status |
+| :--- | :--- | :---: |
+| **Detect manipulated images** | Part 2 `deepfake-detector-main` Error Level Analysis + Noise Residual Splicing Detection | ✅ |
+| **Detect AI-generated synthetic images** | Part 2 `deepfake-detector-main` `BaselineNet` / `ForensicNet` + 2D FFT Spectral Grid Analysis | ✅ |
+| **Detect deepfake videos** | Part 3 `MediaPipe` FaceLandmarker (Eye Aspect Ratio, blink dynamics, head jitter) | ✅ |
+| **Detect AI-generated voices** | Part 3 `torchaudio` MelSpectrogram + PyTorch `AudioDeepfakeClassifier` | ✅ |
+| **Metadata & Provenance Verification** | Part 1 `exifread` camera metadata + `c2pa-python` Content Credentials manifest verification | ✅ |
+| **Provide confidence score & verdict** | Part 4 `EnsembleForensicsEngine` weighted soft-vote / meta-classifier scoring (`0.0 - 1.0`) | ✅ |
+| **User actionable report** | Structured JSON API output + PDF forensic audit documentation (`ReportLab`) | ✅ |
 
 ---
 
 ## 📝 License & Attribution
 
-This project integrates:
-- **Part 1** (User-supplied): Gateway with Celery/Redis
-- **Part 2** (User-supplied): ai-photo-detection-main
-- **Part 3** (Created): Video/Audio forensics pipeline
-- **Part 4** (Created): Ensemble voting engine
-- **FastAPI Wrapper** (Created): Unified server
-
-Use responsibly for forensics and authentication purposes only.
-
----
-
-**Version:** 2.0.0  
-**Last Updated:** August 15, 2024  
-**Status:** ✅ Production-Ready
+Designed and developed for **Problem Statement Set – 1 (Deepfake & Digital Media Authenticity Verification)**.  
+Built using PyTorch, OpenCV, MediaPipe, FastAPI, timm, ReportLab, and Scikit-Learn.
