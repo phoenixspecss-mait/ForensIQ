@@ -130,21 +130,21 @@ class _WelcomeSliderState extends State<WelcomeSlider>
                 children: [
                   _buildPage(
                     visual: _buildSlide1Visual(),
-                    title: "The world's experts, in one assistant.",
+                    title: "Multimodal AI Forensics Platform",
                     subtitle:
-                        "Ask anything and let our network of specialist AI agents find the answer for you.",
+                        "Verify digital media integrity instantly with multi-modal deepfake detection across images, video, and audio.",
                   ),
                   _buildPage(
                     visual: _buildSlide2Visual(),
-                    title: "Invisible Coordination.",
+                    title: "Biometric Heatmaps & Pixel Forensics",
                     subtitle:
-                        "We find the best specialist for your query and handle the micro-payment instantly behind the scenes.",
+                        "Uncover subtle facial manipulation, spectral audio anomalies, and PRNU camera signatures in real time.",
                   ),
                   _buildPage(
                     visual: _buildSlide3Visual(),
-                    title: "Verified, Precise, Fast.",
+                    title: "Certified Evidence & PDF Audits",
                     subtitle:
-                        "Get started with a small wallet balance and only pay for what you use.",
+                        "Generate cryptographic certificates and export comprehensive PDF audit reports with verified confidence scores.",
                   ),
                 ],
               ),
@@ -377,7 +377,7 @@ class _WelcomeSliderState extends State<WelcomeSlider>
                             children: [
                               Container(width: 20, height: 20, decoration: BoxDecoration(color: mintGreen, borderRadius: BorderRadius.circular(5))),
                               const SizedBox(width: 8),
-                              Text("Welcome to AskExpert", style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                              Text("Welcome to ForensIQ", style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
                             ],
                           ),
                           const SizedBox(height: 16),
@@ -392,7 +392,7 @@ class _WelcomeSliderState extends State<WelcomeSlider>
                                     border: Border.all(color: mintGreen.withValues(alpha: 0.3)),
                                   ),
                                   child: Center(
-                                    child: Text("Start a New Consultation\nDefine your project goals", textAlign: TextAlign.center, style: GoogleFonts.inter(color: Colors.white, fontSize: 11)),
+                                    child: Text("Start DeepScan Analysis\nUpload image, video or audio file", textAlign: TextAlign.center, style: GoogleFonts.inter(color: Colors.white, fontSize: 11)),
                                   ),
                                 ),
                               ),
@@ -406,17 +406,17 @@ class _WelcomeSliderState extends State<WelcomeSlider>
                                     border: Border.all(color: const Color(0xFF233830)),
                                   ),
                                   child: Center(
-                                    child: Text("Browse Expert Directory\nSearch thousands of verified specialists", textAlign: TextAlign.center, style: GoogleFonts.inter(color: textGrey, fontSize: 11)),
+                                    child: Text("Automated Verification\nExtract EXIF metadata & C2PA", textAlign: TextAlign.center, style: GoogleFonts.inter(color: textGrey, fontSize: 11)),
                                   ),
                                 ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 16),
-                          Text("Recommended Experts for You", style: GoogleFonts.inter(color: textGrey, fontSize: 12, fontWeight: FontWeight.bold)),
+                          Text("Active Forensics Detection Modules", style: GoogleFonts.inter(color: textGrey, fontSize: 12, fontWeight: FontWeight.bold)),
                           const SizedBox(height: 10),
                           Row(
-                            children: ["Sarah K.\nFintech Strategist", "David L.\nAI Research Lead", "Maria P.\nProduct Manager", "Robert B.\nLegal Counsel"].map((name) {
+                            children: ["Track A\nDeepfake Classifier", "Track B\nTampering Heatmap", "Track C\nPRNU Camera Match", "Part 3\nAudio Anomaly"].map((name) {
                               return Expanded(
                                 child: Container(
                                   margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -453,9 +453,9 @@ class _WelcomeSliderState extends State<WelcomeSlider>
                 letterSpacing: -1.0,
               ),
               children: [
-                const TextSpan(text: "The world's experts, in one\n"),
+                const TextSpan(text: "Multimodal AI Forensics\n"),
                 TextSpan(
-                  text: "assistant.",
+                  text: "Platform.",
                   style: GoogleFonts.inter(color: mintGreen),
                 ),
               ],
@@ -467,7 +467,7 @@ class _WelcomeSliderState extends State<WelcomeSlider>
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 580),
             child: Text(
-              "Ask anything and let our network of specialist AI agents find the answer for you.",
+              "Verify digital media integrity instantly with multi-modal deepfake detection across images, video, and audio.",
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
                 fontSize: 16,
@@ -536,7 +536,7 @@ class _WelcomeSliderState extends State<WelcomeSlider>
 
           // Title (Image 2)
           Text(
-            "Invisible Coordination.",
+            "Biometric Heatmaps & Pixel Forensics",
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 44,
@@ -551,7 +551,7 @@ class _WelcomeSliderState extends State<WelcomeSlider>
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 580),
             child: Text(
-              "We find the best specialist for your query and handle the micro-payment instantly behind the scenes.",
+              "Uncover subtle facial manipulation, spectral audio anomalies, and PRNU camera signatures in real time.",
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
                 fontSize: 16,
@@ -569,7 +569,7 @@ class _WelcomeSliderState extends State<WelcomeSlider>
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Step 1: Searching
+                // Step 1: Scanning
                 Expanded(
                   child: Column(
                     children: [
@@ -588,7 +588,7 @@ class _WelcomeSliderState extends State<WelcomeSlider>
                           ],
                         ),
                         child: const Center(
-                          child: Icon(Icons.center_focus_strong_rounded, color: mintGreen, size: 32),
+                          child: Icon(Icons.manage_search_rounded, color: mintGreen, size: 32),
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -601,9 +601,9 @@ class _WelcomeSliderState extends State<WelcomeSlider>
                         ),
                         child: Column(
                           children: [
-                            Text("Searching", style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+                            Text("Scanning Media", style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
                             const SizedBox(height: 4),
-                            Text("Scanning specialized networks", textAlign: TextAlign.center, style: GoogleFonts.inter(color: textGrey, fontSize: 12)),
+                            Text("Extract EXIF & C2PA manifest", textAlign: TextAlign.center, style: GoogleFonts.inter(color: textGrey, fontSize: 12)),
                           ],
                         ),
                       ),
@@ -614,7 +614,7 @@ class _WelcomeSliderState extends State<WelcomeSlider>
                 // Connecting Horizontal Line 1
                 Container(width: 40, height: 2, color: const Color(0xFF233A31)),
 
-                // Step 2: Comparing
+                // Step 2: Biometrics
                 Expanded(
                   child: Column(
                     children: [
@@ -627,7 +627,7 @@ class _WelcomeSliderState extends State<WelcomeSlider>
                           border: Border.all(color: const Color(0xFF233A31), width: 1.5),
                         ),
                         child: const Center(
-                          child: Icon(Icons.balance_rounded, color: textGrey, size: 30),
+                          child: Icon(Icons.face_retouching_natural_rounded, color: textGrey, size: 30),
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -640,9 +640,9 @@ class _WelcomeSliderState extends State<WelcomeSlider>
                         ),
                         child: Column(
                           children: [
-                            Text("Comparing", style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+                            Text("Biometric Mesh", style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
                             const SizedBox(height: 4),
-                            Text("Evaluating expertise & cost", textAlign: TextAlign.center, style: GoogleFonts.inter(color: textGrey, fontSize: 12)),
+                            Text("Scanning facial & audio variance", textAlign: TextAlign.center, style: GoogleFonts.inter(color: textGrey, fontSize: 12)),
                           ],
                         ),
                       ),
@@ -653,7 +653,7 @@ class _WelcomeSliderState extends State<WelcomeSlider>
                 // Connecting Horizontal Line 2
                 Container(width: 40, height: 2, color: const Color(0xFF233A31)),
 
-                // Step 3: Paying
+                // Step 3: Ensemble
                 Expanded(
                   child: Column(
                     children: [
@@ -666,7 +666,7 @@ class _WelcomeSliderState extends State<WelcomeSlider>
                           border: Border.all(color: const Color(0xFF233A31), width: 1.5),
                         ),
                         child: const Center(
-                          child: Icon(Icons.payments_outlined, color: textGrey, size: 30),
+                          child: Icon(Icons.verified_rounded, color: textGrey, size: 30),
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -679,9 +679,9 @@ class _WelcomeSliderState extends State<WelcomeSlider>
                         ),
                         child: Column(
                           children: [
-                            Text("Paying", style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+                            Text("Ensemble Fusion", style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
                             const SizedBox(height: 4),
-                            Text("Frictionless micro-transaction", textAlign: TextAlign.center, style: GoogleFonts.inter(color: textGrey, fontSize: 12)),
+                            Text("Weighted soft-vote verdict", textAlign: TextAlign.center, style: GoogleFonts.inter(color: textGrey, fontSize: 12)),
                           ],
                         ),
                       ),
@@ -707,7 +707,7 @@ class _WelcomeSliderState extends State<WelcomeSlider>
 
           // Title (Image 3)
           Text(
-            "Verified, Precise, Fast.",
+            "Certified Evidence & PDF Audits",
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 44,
@@ -722,7 +722,7 @@ class _WelcomeSliderState extends State<WelcomeSlider>
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 580),
             child: Text(
-              "Get started with a small wallet balance and only pay for what you use.",
+              "Generate cryptographic certificates and export comprehensive PDF audit reports with verified confidence scores.",
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
                 fontSize: 16,
@@ -733,7 +733,7 @@ class _WelcomeSliderState extends State<WelcomeSlider>
           ),
           const SizedBox(height: 40),
 
-          // Central Balance Preview Card (Image 3)
+          // Central Integrity Certificate Preview Card (Image 3)
           Container(
             width: 420,
             padding: const EdgeInsets.all(24),
@@ -768,7 +768,7 @@ class _WelcomeSliderState extends State<WelcomeSlider>
                           const Icon(Icons.shield_outlined, size: 14, color: mintGreen),
                           const SizedBox(width: 6),
                           Text(
-                            "SECURE",
+                            "VERIFIED CERTIFICATE",
                             style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: mintGreen, letterSpacing: 0.5),
                           ),
                         ],
@@ -781,8 +781,8 @@ class _WelcomeSliderState extends State<WelcomeSlider>
                         const CircleAvatar(radius: 3.5, backgroundColor: mintGreen),
                         const SizedBox(width: 6),
                         Text(
-                          "ACTIVE",
-                          style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: textGrey, letterSpacing: 0.5),
+                          "AUTHENTIC",
+                          style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: mintGreen, letterSpacing: 0.5),
                         ),
                       ],
                     ),
@@ -790,14 +790,14 @@ class _WelcomeSliderState extends State<WelcomeSlider>
                 ),
                 const SizedBox(height: 24),
 
-                Text("Available Balance", style: GoogleFonts.inter(color: textGrey, fontSize: 13, fontWeight: FontWeight.w500)),
+                Text("System Integrity Score", style: GoogleFonts.inter(color: textGrey, fontSize: 13, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 6),
                 RichText(
                   text: TextSpan(
                     style: GoogleFonts.inter(fontSize: 42, fontWeight: FontWeight.w800, color: Colors.white),
                     children: const [
-                      TextSpan(text: "\$4.82 "),
-                      TextSpan(text: "USD", style: TextStyle(fontSize: 18, color: textGrey, fontWeight: FontWeight.normal)),
+                      TextSpan(text: "98% "),
+                      TextSpan(text: "CONFIDENCE", style: TextStyle(fontSize: 18, color: mintGreen, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),

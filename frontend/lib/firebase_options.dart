@@ -46,15 +46,17 @@ class DefaultFirebaseOptions {
     messagingSenderId: '327820252718',
     projectId: 'forensiq-16901',
     authDomain: 'forensiq-16901.firebaseapp.com',
+    databaseURL: 'https://forensiq-16901-default-rtdb.firebaseio.com',
     storageBucket: 'forensiq-16901.firebasestorage.app',
     measurementId: 'G-KLESBR8QXR',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDkL9wLp3MaMJTJZVRdduNaFTojTCExtZM',
-    appId: '1:327820252718:android:7cbb0b5fa873064b99b1bf',
+    appId: '1:327820252718:android:24fbec95dbdea30899b1bf',
     messagingSenderId: '327820252718',
     projectId: 'forensiq-16901',
+    databaseURL: 'https://forensiq-16901-default-rtdb.firebaseio.com',
     storageBucket: 'forensiq-16901.firebasestorage.app',
   );
   static const FirebaseOptions ios = FirebaseOptions(
@@ -62,7 +64,10 @@ class DefaultFirebaseOptions {
     appId: '1:327820252718:ios:82a609f9112c27dc99b1bf',
     messagingSenderId: '327820252718',
     projectId: 'forensiq-16901',
+    databaseURL: 'https://forensiq-16901-default-rtdb.firebaseio.com',
     storageBucket: 'forensiq-16901.firebasestorage.app',
+    androidClientId: '327820252718-sf0v9viiihs8bq8bad7lqe7orlptdnid.apps.googleusercontent.com',
+    iosClientId: '327820252718-qlc5bmqbs2je97fah91ikrt1js7p36r4.apps.googleusercontent.com',
     iosBundleId: 'com.example.myApp',
   );
   static const FirebaseOptions macos = FirebaseOptions(
@@ -70,17 +75,21 @@ class DefaultFirebaseOptions {
     appId: '1:327820252718:ios:82a609f9112c27dc99b1bf',
     messagingSenderId: '327820252718',
     projectId: 'forensiq-16901',
+    databaseURL: 'https://forensiq-16901-default-rtdb.firebaseio.com',
     storageBucket: 'forensiq-16901.firebasestorage.app',
+    androidClientId: '327820252718-sf0v9viiihs8bq8bad7lqe7orlptdnid.apps.googleusercontent.com',
+    iosClientId: '327820252718-qlc5bmqbs2je97fah91ikrt1js7p36r4.apps.googleusercontent.com',
     iosBundleId: 'com.example.myApp',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
     apiKey: 'AIzaSyCQs1DFSf_7JLVQFAcwtpzDyT9hoNwl4gQ',
-    appId: '1:327820252718:web:ed34c48206d995a899b1bf',
+    appId: '1:327820252718:web:d77df321d6f13e9299b1bf',
     messagingSenderId: '327820252718',
     projectId: 'forensiq-16901',
     authDomain: 'forensiq-16901.firebaseapp.com',
+    databaseURL: 'https://forensiq-16901-default-rtdb.firebaseio.com',
     storageBucket: 'forensiq-16901.firebasestorage.app',
-    measurementId: 'G-7MC05ZZBML',
+    measurementId: 'G-P0E093PSM3',
   );
 }
