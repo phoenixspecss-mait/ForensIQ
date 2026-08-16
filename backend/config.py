@@ -11,7 +11,7 @@ RELOAD = os.getenv("RELOAD", "false").lower() == "true"
 # Model paths
 FACE_LANDMARKER_PATH = os.getenv("FACE_LANDMARKER_PATH", "backend/face_landmarker.task")
 AUDIO_MODEL_PATH = os.getenv("AUDIO_MODEL_PATH", "backend/part3_video_audio/outputs/audio_deepfake_classifier.pth")
-PART2_MODEL_PATH = os.getenv("PART2_MODEL_PATH", "backend/ai-photo-detection-main/models/")
+PART2_MODEL_PATH = os.getenv("PART2_MODEL_PATH", "backend/deepfake-detector-main/")
 
 # GPU/Device
 USE_GPU = os.getenv("USE_GPU", "true").lower() == "true"

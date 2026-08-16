@@ -61,6 +61,15 @@ class VideoAudioForensics:
             n_mels=64
         )
         self.audio_model = AudioDeepfakeClassifier()
+        weights_path = os.path.join(os.path.dirname(__file__), "..", "..", "outputs", "audio_deepfake_classifier.pth")
+        if os.path.exists(weights_path):
+            try:
+                self.audio_model.load_state_dict(torch.load(weights_path, map_location="cpu"))
+                print(f"✅ Loaded trained AudioDeepfakeClassifier weights from {weights_path}")
+            except Exception as e:
+                print(f"⚠️ Failed to load AudioDeepfakeClassifier weights: {e}")
+        else:
+            print(f"⚠️ AudioDeepfakeClassifier checkpoint not found at {weights_path}, running default model")
         self.audio_model.eval()
 
     def _calculate_ear(self, landmarks) -> float:
